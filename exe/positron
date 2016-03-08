@@ -1,0 +1,47 @@
+#! /usr/bin/env ruby
+
+$LOAD_PATH.unshift(File.expand_path("../lib", File.dirname(__FILE__)))
+
+require 'optparse'
+require 'positron'
+
+options = {}
+
+OptionParser.new do |opts|
+
+  if ARGV.first == 'build'
+    options[:command] = ARGV.shift
+  elsif ARGV.first == 'watch'
+    options[:command] = ARGV.shift
+  end
+
+  opts.on("-j", "--js", "#{options[:command]} Javascript") do |val|
+    options[:js] = val
+  end
+
+  opts.on("-c", "--css", "#{options[:command]} Stylesheets") do |val|
+    options[:css] = val
+  end
+
+  opts.on("-s", "--svg", "#{options[:command]} SVG") do |val|
+    options[:svg] = val
+  end
+
+  opts.on("-o", "--output PATH", String, "Where should JS/SCSS/HTML files be written, (default: current directory)") do |path|
+    options[:output_path] = path
+  end
+
+  opts.on("-c", "--config PATH", String, "Path to a config file (default: esvg.yml, config/esvg.yml)") do |path|
+    options[:config_file] = path
+  end
+
+  opts.on("-v", "--version", "Print version") do |version|
+    options[:version] = true
+  end
+end.parse!
+
+if options[:version]
+  return puts Positron::VERSION
+end
+
+Positron::run(options)
