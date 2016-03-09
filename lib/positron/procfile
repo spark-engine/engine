@@ -1,0 +1,3 @@
+svg: positron watch --svg
+js: positron watch --js
+css: positron watch --css

@@ -9,11 +9,18 @@ options = {}
 
 OptionParser.new do |opts|
 
-  if ARGV.first == 'build'
-    options[:command] = ARGV.shift
-  elsif ARGV.first == 'watch'
-    options[:command] = ARGV.shift
-  end
+  options[:command] = ARGV.shift
+
+  opts.banner = <<-HERE
+
+  Usage:
+    # Write default config file to path
+    positron init [path]
+
+    positron build [options]
+    positron watch [options]
+
+  HERE
 
   opts.on("-j", "--js", "#{options[:command]} Javascript") do |val|
     options[:js] = val
@@ -38,10 +45,30 @@ OptionParser.new do |opts|
   opts.on("-v", "--version", "Print version") do |version|
     options[:version] = true
   end
+
+  opts.on("-h", "--help", "Print this message") do |version|
+    options[:help] = opts
+  end
+
+  if options[:command] == 'help'
+    options[:help] = opts
+  end
 end.parse!
 
 if options[:version]
-  return puts Positron::VERSION
-end
+  puts "Positron version #{Positron::VERSION}"
+elsif options[:help]
 
-Positron::run(options)
+  if options[:help]
+    puts "Positron version #{Positron::VERSION}"
+    puts options[:help]
+
+    # Use this if commands get long
+    #IO.popen("less", "w") do |f| 
+      #f.puts "Positron version #{Positron::VERSION}"
+      #f.puts options[:help]
+    #end
+  end
+else
+  Positron::run(options)
+end
