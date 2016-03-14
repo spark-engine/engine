@@ -9,6 +9,7 @@ module Positron
     app_name:     'application',
     config_file:  './positron.yml',
     js_dir:      './app/assets/positron/javascripts/',
+    js_module_name: 'Positron',
     css_dir:     './app/assets/positron/stylesheets/',
     svg_dir:     './app/assets/positron/svgs/',
     output_dir:  './public/assets/positron/',
@@ -88,8 +89,8 @@ module Positron
       dest = destination(file).sub(/\.js/,'')
 
       command = "#{File.join(config[:npm_dir], ".bin/browserify")} #{file} -t "
-      + "babelify --standalone #{config[:js_module_name]} -o #{dest}.js "
-      + "-d -p [ minifyify --map #{File.basename(output_dir)}.map.json --output #{dest}.map.json ]"
+      command += "babelify --standalone #{config[:js_module_name]} -o #{dest}.js "
+      command += "-d -p [ minifyify --map #{File.basename(dest)}.map.json --output #{dest}.map.json ]"
 
       system command
     end
@@ -147,9 +148,7 @@ module Positron
 
     Thread.new {
       watchify = File.join(config[:npm_dir], ".bin/watchify")
-
-      command = "#{watchify} #{file} --poll --debug -t "
-      + "babelify #{config[:js_module_name] || config[:app_name]} -o #{destination(file)} -v"
+      command = "#{watchify} #{file} --poll --debug -t babelify -o #{destination(file)} -v"
 
       system command
     }
