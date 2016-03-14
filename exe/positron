@@ -22,19 +22,22 @@ OptionParser.new do |opts|
 
   HERE
 
-  opts.on("-j", "--js", "#{options[:command]} Javascript") do |val|
-    options[:js] = val
+  opts.on("-j", "--js", "#{options[:command]} Javascript only") do |val|
+    options[:build_js] = true
+    options[:only] = true
   end
 
-  opts.on("-c", "--css", "#{options[:command]} Stylesheets") do |val|
-    options[:css] = val
+  opts.on("-s", "--sass", "#{options[:command]} Sass stylesheets only") do |val|
+    options[:build_css] = true
+    options[:only] = true
   end
 
-  opts.on("-s", "--svg", "#{options[:command]} SVG") do |val|
-    options[:svg] = val
+  opts.on("-S", "--svg", "#{options[:command]} SVG only") do |val|
+    options[:build_svg] = true
+    options[:only] = true
   end
 
-  opts.on("-o", "--output PATH", String, "Where should JS/SCSS/HTML files be written, (default: current directory)") do |path|
+  opts.on("-o", "--output PATH", String, "Where should JS/CSS/HTML files be written, (default: current directory)") do |path|
     options[:output_path] = path
   end
 
@@ -54,6 +57,12 @@ OptionParser.new do |opts|
     options[:help] = opts
   end
 end.parse!
+
+if !options[:only]
+  options[:build_js]  = true
+  options[:build_css] = true
+  options[:build_svg] = true
+end
 
 if options[:version]
   puts "Positron version #{Positron::VERSION}"

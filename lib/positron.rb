@@ -1,24 +1,25 @@
 require "positron/version"
+require "yaml"
+require 'pp'
 
 module Positron
   extend self
 
-  OPTIONS = {
+  DEFAULTS = {
+    app_name:     'application',
     config_file:  './positron.yml',
-    js_path:      './positron/javascripts/index.js',
-    css_path:     './positron/stylesheets/index.scss',
-    svg_dir:      './positron/svgs/',
-    output_path:  './positron/build/',
-    npm_path:     './node_modules'
+    js_dir:      './app/assets/positron/javascripts/',
+    css_dir:     './app/assets/positron/stylesheets/',
+    svg_dir:     './app/assets/positron/svgs/',
+    output_dir:  './public/assets/positron/',
+    npm_dir:     './node_modules'
   }
 
   def run(options)
-    options = options.merge
-    read_config(options[:config_file])
+    config(options)
 
-    if options[:command] == 'build'
-      build(options)
-    end
+    build if config[:command] == 'build'
+    watch if config[:command] == 'watch'
 
     # Add dependencies somehow
     #
@@ -28,47 +29,87 @@ module Positron
     # "watchify": "^3.3.1"
   end
 
+  def config(cli_options={})
+    @config ||= begin
+      file_config = read_config(cli_options[:config_file])
+
+      # Merge with oder: Defaults < File Config < CLI options
+      #
+      @config = DEFAULTS.merge file_config.merge(cli_options)
+
+      @config[:css_dir]    = File.expand_path(@config[:css_dir])
+      @config[:js_dir]     = File.expand_path(@config[:js_dir])
+      @config[:svg_dir]    = File.expand_path(@config[:svg_dir])
+      @config[:output_dir] = File.expand_path(@config[:output_dir])
+      @config[:npm_dir]    = File.expand_path(@config[:npm_dir])
+
+      FileUtils.mkdir_p(@config[:output_dir])
+
+      @config
+    end
+  end
+
   def read_config(file)
-    @config = if file && File.exist?(file)
-      Yaml.load(File.read(file))
+    file = File.expand_path(file || DEFAULTS[:config_file])
+
+    if File.exist?(file)
+      symbolize(YAML.load(File.read(file)))
     else
       {}
     end
   end
 
-  def build(options)
-    build_svg(options) if options[:svg]
-    build_js(options)  if options[:js]
-    build_css(options) if options[:css]
+  def build
+    threads = []
+
+    threads << Thread.new { build_svg } if config[:build_svg]
+    threads << Thread.new { build_js  } if config[:build_js]
+    threads << Thread.new { build_css } if config[:build_css]
+
+    threads.each { |thr| thr.join }
   end
 
-  def watch(options)
-    processes = []
-    processes.push 'svg=1' if options[:svg]
-    processes.push 'js=1' if options[:js]
-    processes.push 'css=1' if options[:css]
+  def watch
+    threads = []
 
-    procfile_path = File.join(File.expand_path(File.dirname(__FILE__)), 'positron/procfile')
+    threads << listen(:svg, :build_svg) if config[:build_svg]
+    threads << watch_js                          if config[:build_js]
+    threads << listen(:css, :build_css) if config[:build_css]
 
-    system "foreman start -c #{processes.join} -f #{procfile_path}"
+    threads.each { |thr| thr.join }
   end
 
-  def build_js(options)
-    output_path = options[:js_output_path].sub(/\.js$/, "-#{options[:version]}")
-    browserfy_path = File.join(options[:npm_path], ".bin/browserify")
+  def build_js
+    return unless File.directory?(config[:js_dir])
 
-    command = "#{browserfy_path} #{options[:js_path]} -t "
-    + "babelify --standalone #{options[:js_module_name]} -o #{output_path}.js " 
-    + "-d -p [ minifyify --map #{File.basename(output_path)}.map.json --output #{output_path}.map.json ]"
+    file = File.join(config[:js_dir], 'index.js')
 
-    system command
+    if File.exist?(file)
+      dest = destination(file).sub(/\.js/,'')
+
+      command = "#{File.join(config[:npm_dir], ".bin/browserify")} #{file} -t "
+      + "babelify --standalone #{config[:js_module_name]} -o #{dest}.js "
+      + "-d -p [ minifyify --map #{File.basename(output_dir)}.map.json --output #{dest}.map.json ]"
+
+      system command
+    end
   end
 
-  def build_svg(options)
+  def destination(file)
+    if config[:version]
+      file = file.sub(/(\.\w+)$/, '-'+config[:version]+'\1')
+    end
+
+    File.join(config[:output_dir], File.basename(file))
+  end
+
+  def build_svg
+    return unless File.directory?(config[:svg_dir])
+
     require 'esvg'
 
-    if @svg.nil? 
-      @svg = Esvg::SVG.new(config_file: options[:config_file], cli: true, optimize: true)
+    if @svg.nil?
+      @svg = Esvg::SVG.new(config_file: config[:config_file], cli: true, optimize: true)
     else
       @svg.read_files
     end
@@ -76,46 +117,61 @@ module Positron
     @svg.write
   end
 
-  def watch_js(options)
-    output_path = options[:js_output_path].sub(/\.js$/, "-#{options[:version]}")
-    watchify_path = File.join(options[:npm_path], ".bin/watchify")
+  def build_css
+    return unless File.directory?(config[:css_dir])
 
-    command = "#{browserfy_path} #{options[:js_path]} --poll --debug -t "
-    + "babelify #{options[:js_module_name]} -o #{output_path}.js -v" 
+    style = 'nested'
+    sourcemap = 'none'
 
-    system command
-  end
-
-  def watch_css(options)
-    require 'listen'
-
-    listener = Listen.to(options[:css_path], only: /\.scss$/) do |modified, added, removed|
-      build_css(options)
+    if ENV['CI'] || ENV['RAILS_ENV'] == 'production'
+      style = "compressed"
+      sourcemap = 'auto'
     end
 
-    build_css
+    css_files.each do |file|
+      dest = destination(file).sub(/scss$/,'css')
+      system "sass #{file}:#{dest} --style #{style} --sourcemap=#{sourcemap}"
 
-    puts "Initial CSS build, done. Listening for changes..."
-
-    listener.start # not blocking
-    sleep
+      post_css = File.join(config[:npm_dir], "postcss-cli/bin/postcss")
+      system "#{post_css} --use autoprefixer #{dest} -o #{dest}"
+      puts "Built: #{dest}"
+    end
   end
 
-  def watch_svg(options)
+  def css_files
+    Dir[File.join(config[:css_dir], '*.scss')].reject {|f| f.start_with?('_') }
+  end
+
+  def watch_js
+    file = File.join(config[:js_dir], 'index.js')
+
+    Thread.new {
+      watchify = File.join(config[:npm_dir], ".bin/watchify")
+
+      command = "#{watchify} #{file} --poll --debug -t "
+      + "babelify #{config[:js_module_name] || config[:app_name]} -o #{destination(file)} -v"
+
+      system command
+    }
+  end
+
+  def listen(type, method)
     require 'listen'
 
-    listener = Listen.to(options[:svg_dir], only: /\.svg$/) do |modified, added, removed|
-      build_svg
-    end
+    Thread.new {
+      listener = Listen.to(config["#{type}_dir".to_sym], only: /#{type}$/) do |modified, added, removed|
+        self.public_send(method)
+      end
 
-    build_svg
+      self.public_send(method)
 
-    puts "Initial SVG build, done. Listening for changes..."
+      puts "#{type.upcase} Build complete. Listening for changes..."
 
-    listener.start # not blocking
-    sleep
+      listener.start # not blocking
+      sleep
+    }
   end
-  
+
   def gzip(glob)
     Dir["#{Dir.pwd}/#{glob}"].each do |f|
       next unless f =~ ZIP_TYPES
@@ -133,5 +189,16 @@ module Positron
 
       File.utime(mtime, mtime, gz_file)
     end
+  end
+
+  def symbolize(obj)
+    if obj.is_a? Hash
+      return obj.inject({}) do |memo, (k, v)|
+        memo.tap { |m| m[k.to_sym] = symbolize(v) }
+      end
+    elsif obj.is_a? Array
+      return obj.map { |memo| symbolize(memo) }
+    end
+    obj
   end
 end

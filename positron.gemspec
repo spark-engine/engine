@@ -27,7 +27,7 @@ Gem::Specification.new do |spec|
   spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
   spec.require_paths = ["lib"]
 
-  spec.add_runtime_dependency "foreman"
+  spec.add_runtime_dependency "sass"
   spec.add_runtime_dependency "esvg"
   spec.add_runtime_dependency "listen", "~> 3.0"
 
