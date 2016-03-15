@@ -5,17 +5,21 @@ $LOAD_PATH.unshift(File.expand_path("../lib", File.dirname(__FILE__)))
 require 'optparse'
 require 'positron'
 
-options = {}
+options = {assets: []}
 
 OptionParser.new do |opts|
 
-  options[:command] = ARGV.shift
+  if ARGV.empty?
+    options[:command] = 'watch'
+  else
+    options[:command] = ARGV.shift
+  end
 
   opts.banner = <<-HERE
 
   Usage:
-    # Write default config file to path
-    positron init [path]
+    positron init [path]                 # Write default config file
+    positron npm [dir/to/package.json]   # Install NPM devDependencies
 
     positron build [options]
     positron watch [options]
@@ -23,17 +27,17 @@ OptionParser.new do |opts|
   HERE
 
   opts.on("-j", "--js", "#{options[:command]} Javascript only") do |val|
-    options[:build_js] = true
+    options[:assets].push 'js'
     options[:only] = true
   end
 
   opts.on("-s", "--sass", "#{options[:command]} Sass stylesheets only") do |val|
-    options[:build_css] = true
+    options[:assets].push 'sass'
     options[:only] = true
   end
 
   opts.on("-S", "--svg", "#{options[:command]} SVG only") do |val|
-    options[:build_svg] = true
+    options[:assets].push 'svg'
     options[:only] = true
   end
 
@@ -59,9 +63,7 @@ OptionParser.new do |opts|
 end.parse!
 
 if !options[:only]
-  options[:build_js]  = true
-  options[:build_css] = true
-  options[:build_svg] = true
+  options[:assets] = %w(svg js sass)
 end
 
 if options[:version]
