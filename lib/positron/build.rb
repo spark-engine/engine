@@ -35,12 +35,10 @@ module Positron
     end
 
     def svg
-      return unless File.directory?(config[:svg_dir])
-
       require 'esvg'
 
       if @svg.nil?
-        @svg = Esvg::SVG.new(config_file: config[:config_file], cli: true, optimize: true)
+        @svg = Esvg::SVG.new(config_file: config[:config_file], path: config[:svg_dir], output_path: config[:js_dir], cli: true, optimize: true)
       else
         @svg.read_files
       end
