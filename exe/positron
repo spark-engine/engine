@@ -18,6 +18,9 @@ OptionParser.new do |opts|
 
   opts.banner = Positron::Help.banner(options[:command])
 
+  if %w(init npm).include?(options[:command])
+    options[:cli_path] = ARGV.shift || Dir.pwd
+  end
 
   if %w(build watch).include?(options[:command])
 
