@@ -68,7 +68,7 @@ if options[:version]
 elsif options[:help]
 
   if options[:help]
-    puts "Positron version #{Positron::VERSION}"
+    puts "Positron version #{Positron::VERSION}\n\n"
     puts options[:help]
 
     # Use this if commands get long

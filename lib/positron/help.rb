@@ -3,7 +3,7 @@ module Positron
     extend self
 
     def banner(command=nil)
-      if command.nil? || command == 'help'
+      if command.nil?
         <<-HERE
 Commands:
   #{commands.values.join("\n  ")}
@@ -22,24 +22,29 @@ Options:
         init:  init,
         npm:   npm,
         build: build,
-        watch: watch
+        watch: watch,
+        help: help
       }
     end
 
     def init
-      "positron init [path]  # Write default config file"
+      "positron init [path]        # Write default config file"
     end
 
     def npm
-      "positron npm [path]   # Add NPM devDependencies to your package.json"
+      "positron npm [path]         # Add NPM dependencies (path: dir with package.json, defaults to '.')"
     end
 
     def build
-      "positron build [options]"
+      "positron build [options]    # Build assets"
     end
 
     def watch
-      "positron watch [options]"
+      "positron watch [options]    # Build assets when files change"
+    end
+
+    def help
+      "positron help [command]     # Show help for a specific command"
     end
   end
 end

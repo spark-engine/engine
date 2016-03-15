@@ -21,10 +21,8 @@ module Positron
       Build.run
     when 'watch'
       Watch.run
-    when 'help'
-      return
     else
-      puts "Command #{config[:command]} not recognized"
+      puts "Command `#{config[:command]}` not recognized"
     end
   end
 
