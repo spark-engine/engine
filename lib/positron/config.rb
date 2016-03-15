@@ -4,7 +4,6 @@ module Positron
 
     DEFAULTS = {
       app_name:       'application',
-      config_file:    './positron.yml',
       js_dir:         './app/assets/positron/javascripts/',
       js_module_name: 'Positron',
       sass_dir:       './app/assets/positron/stylesheets/',
@@ -14,7 +13,7 @@ module Positron
     }
 
     def load(cli_options={})
-      file_config = read(cli_options[:config_file])
+      file_config = read(config_file(cli_options))
 
       # Merge with oder: Defaults < File Config < CLI options
       #
@@ -35,11 +34,14 @@ module Positron
 
       config
     end
+    
+    def config_file(options)
+      paths = [options[:config_file], 'config/positron.yml', 'positron.yml'].compact
+      paths.select{ |p| File.exist?(File.expand_path(p))}.first
+    end
 
     def read(file)
-      file = File.expand_path(file || DEFAULTS[:config_file])
-
-      if File.exist?(file)
+      if file
         symbolize(YAML.load(File.read(file)))
       else
         {}

@@ -9,43 +9,39 @@ options = {assets: []}
 
 OptionParser.new do |opts|
 
+  options[:help] = ARGV.shift if ARGV.first == 'help'
   if ARGV.empty?
-    options[:command] = 'watch'
-  else
+    options[:help] = 'help' # show help as default subcommand
+  elsif !ARGV.first.match(/^-/)
     options[:command] = ARGV.shift
   end
 
-  opts.banner = <<-HERE
+  opts.banner = Positron::Help.banner(options[:command])
 
-  Usage:
-    positron init [path]                 # Write default config file
-    positron npm [dir/to/package.json]   # Install NPM devDependencies
 
-    positron build [options]
-    positron watch [options]
+  if %w(build watch).include?(options[:command])
 
-  HERE
+    opts.on("-j", "--js", "#{options[:command]} Javascript only") do |val|
+      options[:assets].push 'js'
+      options[:only] = true
+    end
 
-  opts.on("-j", "--js", "#{options[:command]} Javascript only") do |val|
-    options[:assets].push 'js'
-    options[:only] = true
+    opts.on("-s", "--sass", "#{options[:command]} Sass stylesheets only") do |val|
+      options[:assets].push 'sass'
+      options[:only] = true
+    end
+
+    opts.on("-S", "--svg", "#{options[:command]} SVG only") do |val|
+      options[:assets].push 'svg'
+      options[:only] = true
+    end
+
+    opts.on("-o", "--output PATH", String, "Where should JS/CSS/HTML files be written, (default: current directory)") do |path|
+      options[:output_path] = path
+    end
   end
 
-  opts.on("-s", "--sass", "#{options[:command]} Sass stylesheets only") do |val|
-    options[:assets].push 'sass'
-    options[:only] = true
-  end
-
-  opts.on("-S", "--svg", "#{options[:command]} SVG only") do |val|
-    options[:assets].push 'svg'
-    options[:only] = true
-  end
-
-  opts.on("-o", "--output PATH", String, "Where should JS/CSS/HTML files be written, (default: current directory)") do |path|
-    options[:output_path] = path
-  end
-
-  opts.on("-c", "--config PATH", String, "Path to a config file (default: esvg.yml, config/esvg.yml)") do |path|
+  opts.on("-c", "--config PATH", String, "Path to a config file (default: positron.yml, config/positron.yml)") do |path|
     options[:config_file] = path
   end
 
@@ -55,9 +51,10 @@ OptionParser.new do |opts|
 
   opts.on("-h", "--help", "Print this message") do |version|
     options[:help] = opts
+    options[:command] = 'help'
   end
 
-  if options[:command] == 'help'
+  if options[:help] == 'help'
     options[:help] = opts
   end
 end.parse!

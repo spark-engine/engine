@@ -5,6 +5,7 @@ require "positron/version"
 require "positron/config"
 require "positron/build"
 require "positron/watch"
+require "positron/help"
 require "positron/npm"
 
 module Positron
@@ -20,8 +21,10 @@ module Positron
       Build.run
     when 'watch'
       Watch.run
+    when 'help'
+      return
     else
-      puts 'Command not recognized'
+      puts "Command #{config[:command]} not recognized"
     end
   end
 
