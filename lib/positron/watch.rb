@@ -8,7 +8,7 @@ module Positron
 
     def run
       trap("SIGINT") { 
-        puts "\nWatcher stopped. Have a nice day!"
+        puts "\nPositron watcher stopped. Have a nice day!"
         exit! 
       }
 
@@ -27,15 +27,34 @@ module Positron
 
     def listen(type)
       require 'listen'
+      dir = config["#{type}_dir".to_sym]
+      method = Build.method(type)
 
       Thread.new {
-        listener = Listen.to(dir, only: /#{type}$/) do |modified, added, removed|
-          Build.public_send(type)
+        listener = Listen.to(dir) do |modified, added, removed|
+          trigger(type, modified, added, removed)
         end
 
         listener.start # not blocking
         sleep
       }
+    end
+
+    def trigger(type, modified, added, removed)
+      puts "Added: #{file_event(type, added)}"       unless added.empty?
+      puts "Removed: #{file_event(type, removed)}"   unless removed.empty?
+      puts "Modified: #{file_event(type, modified)}" unless modified.empty?
+
+      Build.public_send(type)
+    end
+
+    def file_event(type, files)
+      dir = config["#{type}_dir".to_sym]
+
+      list = files.map { |f| f.sub(dir+'/', '') }.join("  \n")
+
+      list = "  \n#{files}" if 1 < files.size
+      list 
     end
   end
 end

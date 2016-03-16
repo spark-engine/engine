@@ -5,11 +5,11 @@ module Positron
     DEFAULTS = {
       app_name:       'application',
       js_dir:         './app/assets/positron/javascripts/',
-      js_module_name: 'Positron',
       sass_dir:       './app/assets/positron/stylesheets/',
       svg_dir:        './app/assets/positron/svgs/',
       output_dir:     './public/assets/positron/',
-      npm_dir:        './node_modules'
+      npm_dir:        './node_modules',
+      js_module_name: 'Positron'
     }
 
     def load(cli_options={})

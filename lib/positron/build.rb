@@ -18,9 +18,14 @@ module Positron
 
 
     def js
-      return unless File.directory?(config[:js_dir])
-
+      browserfy = File.join(config[:npm_dir], ".bin/browserify")
       file = File.join(config[:js_dir], 'index.js')
+
+      if !File.directory?(browserfy)
+        puts "BUILD FAILED: Browserfy NPM module not found at #{relative_path(browserfy)}."
+        puts "Please configure `npm_dir` in positron.yml, or install with `positron npm`"
+        exit!
+      end
 
       if File.exist?(file)
         dest = destination(file).sub(/\.js/,'')
@@ -47,8 +52,6 @@ module Positron
     end
 
     def sass
-      return unless File.directory?(config[:sass_dir])
-
       style = 'nested'
       sourcemap = 'none'
 
@@ -58,7 +61,7 @@ module Positron
       end
 
       sass_files.each do |file|
-        dest = destination(file).sub(/scss$/,'css')
+        dest = destination(file).sub(/s[ca]ss$/,'css')
         system "sass #{file}:#{dest} --style #{style} --sourcemap=#{sourcemap}"
 
         post_css = File.join(config[:npm_dir], "postcss-cli/bin/postcss")
@@ -76,7 +79,7 @@ module Positron
     end
 
     def sass_files
-      Dir[File.join(config[:sass_dir], '*.scss')].reject {|f| f.start_with?('_') }
+      Dir[File.join(config[:sass_dir], '*.scss')].reject {|f| File.basename(f).start_with?('_') }
     end
 
     def relative_path(path)
