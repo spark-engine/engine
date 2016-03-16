@@ -7,6 +7,8 @@ module Positron
     end
 
     def run
+      require 'listen'
+
       trap("SIGINT") { 
         puts "\nPositron watcher stopped. Have a nice day!"
         exit! 
@@ -26,7 +28,6 @@ module Positron
     end
 
     def listen(type)
-      require 'listen'
       dir = config["#{type}_dir".to_sym]
       method = Build.method(type)
 
@@ -52,8 +53,8 @@ module Positron
       dir = config["#{type}_dir".to_sym]
 
       list = files.map { |f| f.sub(dir+'/', '') }.join("  \n")
-
       list = "  \n#{files}" if 1 < files.size
+
       list 
     end
   end

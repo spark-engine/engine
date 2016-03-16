@@ -18,10 +18,10 @@ module Positron
 
 
     def js
-      browserfy = File.join(config[:npm_dir], ".bin/browserify")
+      browserfy = File.join(config[:npm_dir], 'node_modules', ".bin/browserify")
       file = File.join(config[:js_dir], 'index.js')
 
-      if !File.directory?(browserfy)
+      if !File.exist?(browserfy)
         puts "BUILD FAILED: Browserfy NPM module not found at #{relative_path(browserfy)}."
         puts "Please configure `npm_dir` in positron.yml, or install with `positron npm`"
         exit!
@@ -30,7 +30,7 @@ module Positron
       if File.exist?(file)
         dest = destination(file).sub(/\.js/,'')
 
-        command = "#{File.join(config[:npm_dir], ".bin/browserify")} #{file} -t "
+        command = "#{browserfy} #{file} -t "
         command += "babelify --standalone #{config[:js_module_name]} -o #{dest}.js "
         command += "-d -p [ minifyify --map #{File.basename(dest)}.map.json --output #{dest}.map.json ]"
 
@@ -64,7 +64,7 @@ module Positron
         dest = destination(file).sub(/s[ca]ss$/,'css')
         system "sass #{file}:#{dest} --style #{style} --sourcemap=#{sourcemap}"
 
-        post_css = File.join(config[:npm_dir], "postcss-cli/bin/postcss")
+        post_css = File.join(config[:npm_dir], 'node_modules', "postcss-cli/bin/postcss")
         system "#{post_css} --use autoprefixer #{dest} -o #{dest}"
         puts "Built: #{relative_path(dest)}"
       end
