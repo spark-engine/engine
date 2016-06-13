@@ -17,13 +17,13 @@ module Positron
     end
 
 
-    def js
+    def javascripts
       browserfy = File.join(config[:npm_dir], 'node_modules', ".bin/browserify")
-      file = File.join(config[:js_dir], 'index.js')
+      file = File.join(config[:javascripts_dir], 'index.js')
 
       if !File.exist?(browserfy)
         puts "BUILD FAILED: Browserfy NPM module not found at #{relative_path(browserfy)}."
-        puts "Please configure `npm_dir` in positron.yml, or install with `positron npm`"
+        puts "Please configure `npm_dir` in megatron.yml, or install with `megatron npm`"
         exit!
       end
 
@@ -43,7 +43,7 @@ module Positron
       require 'esvg'
 
       if @svg.nil?
-        @svg = Esvg::SVG.new(config_file: config[:config_file], path: config[:svg_dir], output_path: config[:js_dir], cli: true, optimize: true)
+        @svg = Esvg::SVG.new(config_file: config[:config_file], path: config[:svg_dir], output_path: config[:javascripts_dir], cli: true, optimize: true)
       else
         @svg.read_files
       end
@@ -51,7 +51,7 @@ module Positron
       @svg.write
     end
 
-    def sass
+    def stylesheets
       style = 'nested'
       sourcemap = 'none'
 
@@ -79,7 +79,7 @@ module Positron
     end
 
     def sass_files
-      Dir[File.join(config[:sass_dir], '*.scss')].reject {|f| File.basename(f).start_with?('_') }
+      Dir[File.join(config[:stylesheets_dir], '*.scss')].reject {|f| File.basename(f).start_with?('_') }
     end
 
     def relative_path(path)

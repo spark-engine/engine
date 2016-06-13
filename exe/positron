@@ -7,30 +7,43 @@ require 'positron'
 
 options = {assets: []}
 
+def next_arg
+  if ARGV.first && !ARGV.first.match(/^-/)
+    ARGV.shift
+  end
+end
+
 OptionParser.new do |opts|
 
   options[:help] = ARGV.shift if ARGV.first == 'help'
+
   if ARGV.empty?
     options[:help] = 'help' # show help as default subcommand
-  elsif !ARGV.first.match(/^-/)
-    options[:command] = ARGV.shift
+  else
+    options[:command] = next_arg
   end
 
   opts.banner = Positron::Help.banner(options[:command])
 
+  if options[:command] == 'init'
+    opts.on("-f", "--force", "force write config file") do |val|
+      options[:force] = true
+    end
+  end
+
   if %w(init npm).include?(options[:command])
-    options[:cli_path] = ARGV.shift || Dir.pwd
+    options[:cli_path] = next_arg || Dir.pwd
   end
 
   if %w(build watch).include?(options[:command])
 
     opts.on("-j", "--js", "#{options[:command]} Javascript only") do |val|
-      options[:assets].push 'js'
+      options[:assets].push 'javascripts'
       options[:only] = true
     end
 
-    opts.on("-s", "--sass", "#{options[:command]} Sass stylesheets only") do |val|
-      options[:assets].push 'sass'
+    opts.on("-s", "--stylesheets", "#{options[:command]} Stylesheets only") do |val|
+      options[:assets].push 'stylesheets'
       options[:only] = true
     end
 
@@ -44,7 +57,7 @@ OptionParser.new do |opts|
     end
   end
 
-  opts.on("-c", "--config PATH", String, "Path to a config file (default: positron.yml, config/positron.yml)") do |path|
+  opts.on("-c", "--config PATH", String, "Path to a config file (default: megatron.yml, config/megatron.yml)") do |path|
     options[:config_file] = path
   end
 
@@ -63,7 +76,7 @@ OptionParser.new do |opts|
 end.parse!
 
 if !options[:only]
-  options[:assets] = %w(svg js sass)
+  options[:assets] = %w(svg javascripts stylesheets)
 end
 
 if options[:version]

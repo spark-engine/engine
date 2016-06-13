@@ -15,6 +15,8 @@ module Positron
     config(options)
 
     case config[:command]
+    when 'init' 
+      Config.write(options)
     when 'npm' 
       NPM.setup
     when 'build'
