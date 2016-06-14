@@ -1,16 +1,16 @@
-module Positron
+module Megatron
   module Watch
     extend self
 
     def config
-      Positron.config
+      Megatron.config
     end
 
     def run
       require 'listen'
 
       trap("SIGINT") { 
-        puts "\nPositron watcher stopped. Have a nice day!"
+        puts "\nMegatron watcher stopped. Have a nice day!"
         exit! 
       }
 

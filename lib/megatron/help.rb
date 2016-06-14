@@ -1,4 +1,4 @@
-module Positron
+module Megatron
   module Help
     extend self
 
@@ -8,7 +8,7 @@ module Positron
 Commands:
   #{commands.values.join("\n  ")}
 
-For help with a specific command, run `positron help command`
+For help with a specific command, run `megatron help command`
 
 Options:
         HERE
@@ -28,23 +28,23 @@ Options:
     end
 
     def init
-      "positron init [path]        # Write default config file"
+      "megatron init [path]        # Write default config file"
     end
 
     def npm
-      "positron npm [path]         # Add NPM dependencies (path: dir with package.json, defaults to '.')"
+      "megatron npm [path]         # Add NPM dependencies (path: dir with package.json, defaults to '.')"
     end
 
     def build
-      "positron build [options]    # Build assets"
+      "megatron build [options]    # Build assets"
     end
 
     def watch
-      "positron watch [options]    # Build assets when files change"
+      "megatron watch [options]    # Build assets when files change"
     end
 
     def help
-      "positron help [command]     # Show help for a specific command"
+      "megatron help [command]     # Show help for a specific command"
     end
   end
 end

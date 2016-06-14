@@ -1,4 +1,4 @@
-module Positron
+module Megatron
   module NPM
     extend self
 
@@ -14,7 +14,7 @@ module Positron
     }
 
     def config
-      Positron.config
+      Megatron.config
     end
 
     def setup

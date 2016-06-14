@@ -1,6 +1,6 @@
 require 'yaml'
 
-module Positron
+module Megatron
   module Config
     extend self
 

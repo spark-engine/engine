@@ -1,14 +1,14 @@
 require "yaml"
 require 'pp'
 
-require "positron/version"
-require "positron/config"
-require "positron/build"
-require "positron/watch"
-require "positron/help"
-require "positron/npm"
+require "megatron/version"
+require "megatron/config"
+require "megatron/build"
+require "megatron/watch"
+require "megatron/help"
+require "megatron/npm"
 
-module Positron
+module Megatron
   extend self
 
   def run(options)

@@ -1,26 +1,18 @@
 # coding: utf-8
 lib = File.expand_path('../lib', __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
-require 'positron/version'
+require 'megatron/version'
 
 Gem::Specification.new do |spec|
-  spec.name          = "positron"
-  spec.version       = Positron::VERSION
-  spec.authors       = ["Brandon Mathis"]
-  spec.email         = ["brandon@imathis.com"]
+  spec.name          = "megatron"
+  spec.version       = Megatron::VERSION
+  spec.authors       = ["Brandon Mathis", "Jérôme Gravel-Niquet"]
+  spec.email         = ["brandon@imathis.com", "jeromegn@gmail.com"]
 
-  spec.summary       = %q{Empowers the front end building process}
-  spec.description   = %q{Empowers the front end building process}
+  spec.summary       = %q{A Style-guide system for Rails and humans.}
+  spec.description   = %q{A Style-guide system for Rails and humans.}
   #spec.homepage      = ""
   spec.license       = "MIT"
-
-  # Prevent pushing this gem to RubyGems.org by setting 'allowed_push_host', or
-  # delete this section to allow pushing this gem to any host.
-  if spec.respond_to?(:metadata)
-    spec.metadata['allowed_push_host'] = "TODO: Set to 'http://mygemserver.com'"
-  else
-    raise "RubyGems 2.0 or newer is required to protect against public gem pushes."
-  end
 
   spec.files         = `git ls-files -z`.split("\x0").reject { |f| f.match(%r{^(test|spec|features)/}) }
   spec.bindir        = "exe"

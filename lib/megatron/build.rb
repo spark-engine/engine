@@ -1,9 +1,9 @@
-module Positron
+module Megatron
   module Build
     extend self
 
     def config
-      Positron.config
+      Megatron.config
     end
 
     def run
