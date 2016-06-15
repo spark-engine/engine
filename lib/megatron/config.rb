@@ -1,18 +1,21 @@
 require 'yaml'
+require 'pp'
 
 module Megatron
   module Config
     extend self
 
     DEFAULTS = %Q{
-      javascripts_dir: js
-      stylesheets_dir: css
-      svg_dir: svg
-
-      output_dir: public/assets/megatron/
-
       # Name for your module's global
-      js_module_name: Megatron
+      name: Megatron
+
+      javascripts_dir: app/assets/javascripts/megatron
+      stylesheets_dir: app/assets/stylesheets/megatron
+      images_dir: app/assets/images/megatron
+      svg_dir: app/assets/svg/megatron
+
+      output_dir: public/assets/megatron
+
       npm_dir: ./
     }
 
@@ -27,13 +30,13 @@ module Megatron
       #
       config = defaults.merge(file_config.merge(cli_options))
 
-      config[:stylesheets_dir] = File.expand_path(config[:stylesheets_dir])
-      config[:javascripts_dir] = File.expand_path(config[:javascripts_dir])
-      config[:svg_dir]    = File.expand_path(config[:svg_dir])
-      config[:output_dir] = File.expand_path(config[:output_dir])
-      config[:npm_dir]    = File.expand_path(config[:npm_dir])
+      root = Megatron.root(config[:name])
 
-      FileUtils.mkdir_p(config[:output_dir])
+      config[:stylesheets_dir] = File.join(root, config[:stylesheets_dir])
+      config[:javascripts_dir] = File.join(root, config[:javascripts_dir])
+      config[:svg_dir]    = File.join(root, config[:svg_dir])
+      config[:output_dir] = File.join(root, config[:output_dir])
+      config[:npm_dir]    = File.join(root, config[:npm_dir])
 
       config[:assets].select! do |type|
         dir = config["#{type}_dir".to_sym]

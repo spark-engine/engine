@@ -1,54 +1,28 @@
-require "yaml"
-require 'pp'
+Gem.loaded_specs['megatron'].dependencies.each do |d|
+  require d.name
+end
 
 require "megatron/version"
 require "megatron/config"
-require "megatron/build"
-require "megatron/watch"
-require "megatron/help"
-require "megatron/npm"
+require "megatron/command"
+
+# Rails hooks
+require "megatron/rails/helper"
+require "megatron/rails/engine"
 
 module Megatron
   extend self
-
-  def run(options)
-    config(options)
-
-    case config[:command]
-    when 'init' 
-      Config.write(options)
-    when 'npm' 
-      NPM.setup
-    when 'build'
-      Build.run
-    when 'watch'
-      Watch.run
-    else
-      puts "Command `#{config[:command]}` not recognized"
-    end
-  end
 
   def config(options={})
     @config ||= Config.load(options)
   end
 
-  def gzip(glob)
-    Dir["#{Dir.pwd}/#{glob}"].each do |f|
-      next unless f =~ ZIP_TYPES
-
-      mtime = File.mtime(f)
-      gz_file = "#{f}.gz"
-      next if File.exist?(gz_file) && File.mtime(gz_file) >= mtime
-
-      File.open(gz_file, "wb") do |dest|
-        gz = Zlib::GzipWriter.new(dest, Zlib::BEST_COMPRESSION)
-        gz.mtime = mtime.to_i
-        IO.copy_stream(open(f), gz)
-        gz.close
-      end
-
-      File.utime(mtime, mtime, gz_file)
-    end
+  def production
+    ENV['CI'] || ENV['RAILS_ENV'] == 'production'
   end
 
+  def root(name=nil)
+    name ||= config[:name]
+    Gem.loaded_specs[name.downcase].full_gem_path
+  end
 end

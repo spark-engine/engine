@@ -8,6 +8,7 @@ module Megatron
 
     def run
       threads = []
+      FileUtils.mkdir_p(config[:output_dir])
 
       config[:assets].each do |asset|
         threads << Thread.new { self.public_send(asset.to_sym) }
@@ -31,7 +32,7 @@ module Megatron
         dest = destination(file).sub(/\.js/,'')
 
         command = "#{browserfy} #{file} -t "
-        command += "babelify --standalone #{config[:js_module_name]} -o #{dest}.js "
+        command += "babelify --standalone #{config[:name]} -o #{dest}.js "
         command += "-d -p [ minifyify --map #{File.basename(dest)}.map.json --output #{dest}.map.json ]"
 
         system command
@@ -55,7 +56,7 @@ module Megatron
       style = 'nested'
       sourcemap = 'none'
 
-      if ENV['CI'] || ENV['RAILS_ENV'] == 'production'
+      if Megatron.production
         style = "compressed"
         sourcemap = 'auto'
       end

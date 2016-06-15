@@ -94,5 +94,5 @@ elsif options[:help]
     #end
   end
 else
-  Megatron::run(options)
+  Megatron::Command.run(options)
 end
