@@ -1,6 +1,5 @@
 require "yaml"
 
-require "megatron/command/build"
 require "megatron/command/watch"
 require "megatron/command/help"
 require "megatron/command/npm"
@@ -11,9 +10,9 @@ module Megatron
     extend self
 
     def run(options)
-      Megatron.config(options)
+      config = Megatron.config(options)
 
-      case Megatron.config[:command]
+      case config[:command]
       when 'init' 
         Config.write(options)
       when 'npm' 
@@ -23,7 +22,7 @@ module Megatron
       when 'watch'
         Watch.run
       else
-        puts "Command `#{Megatron.config[:command]}` not recognized"
+        puts "Command `#{config[:command]}` not recognized"
       end
     end
 

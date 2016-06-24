@@ -28,7 +28,7 @@ module Megatron
     end
 
     def listen(type)
-      dir = config["#{type}_dir".to_sym]
+      dir = config[:paths][type.to_sym]
       method = Build.method(type)
 
       Thread.new {
@@ -50,7 +50,7 @@ module Megatron
     end
 
     def file_event(type, files)
-      dir = config["#{type}_dir".to_sym]
+      dir = config[:paths][type.to_sym]
 
       list = files.map { |f| f.sub(dir+'/', '') }.join("  \n")
       list = "  \n#{files}" if 1 < files.size

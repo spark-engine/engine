@@ -20,13 +20,10 @@ module Megatron
     def setup
       require 'json'
 
-      paths = [config[:npm_dir], config[:cli_path]].compact
-      config[:npm_dir] = paths.select{ |p| File.directory?(File.expand_path(p))}.first
-
       if File.exist?(package_path)
         install
       else
-        if bool_ask("No package.json found at #{config[:npm_dir]}\nWould you like to create one?")
+        if bool_ask("No package.json found at #{config[:root]}\nWould you like to create one?")
           write_package_json(DEPENDENCIES)
           install
         else
@@ -36,7 +33,7 @@ module Megatron
     end
 
     def install
-      Dir.chdir(config[:npm_dir]) do
+      Dir.chdir(config[:root]) do
         update_package_json
         system "npm install"
       end
@@ -49,7 +46,7 @@ module Megatron
     end
 
     def package_path
-      File.expand_path(File.join(config[:npm_dir], 'package.json'))
+      File.join(config[:root], 'package.json')
     end
 
     def node_dependencies
@@ -59,14 +56,13 @@ module Megatron
     end
 
     def write_package_json(contents)
-      FileUtils.mkdir_p(config[:npm_dir])
-      File.open(File.join(config[:npm_dir], 'package.json'), 'w') do |io|
+      File.open(package_path, 'w') do |io|
         io.write(JSON.pretty_generate(contents))
       end
     end
 
     def read_package_json
-      JSON.parse(File.read(File.join(config[:npm_dir], 'package.json')))
+      JSON.parse File.read(package_path)
     end
 
     def update_package_json
@@ -87,10 +83,6 @@ module Megatron
       package.delete('dependencies') if package['dependencies'].empty?
       
       write_package_json(package)
-    end
-
-    def update_dependency(package, dependency)
-
     end
 
   end

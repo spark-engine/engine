@@ -8,7 +8,7 @@ module Megatron
 
     def run
       threads = []
-      FileUtils.mkdir_p(config[:output_dir])
+      FileUtils.mkdir_p(config[:paths][:output])
 
       config[:assets].each do |asset|
         threads << Thread.new { self.public_send(asset.to_sym) }
@@ -19,20 +19,19 @@ module Megatron
 
 
     def javascripts
-      browserfy = File.join(config[:npm_dir], 'node_modules', ".bin/browserify")
-      file = File.join(config[:javascripts_dir], 'index.js')
+      browserfy = '$(npm bin)/browserify'
 
-      if !File.exist?(browserfy)
-        puts "BUILD FAILED: Browserfy NPM module not found at #{relative_path(browserfy)}."
-        puts "Please configure `npm_dir` in megatron.yml, or install with `megatron npm`"
+      if `#{browserify}`.emtpy?
+        puts "BUILD FAILED: Browserfy NPM module not found."
+        puts "Please add browserify to your package.json and run `npm install`"
         exit!
       end
 
-      if File.exist?(file)
-        dest = destination(file).sub(/\.js/,'')
+      Dir[File.join(config[:paths][:javascripts], '*.js')].each do |file|
+        dest = Assets.destination(file).sub(/\.js/,'')
 
         command = "#{browserfy} #{file} -t "
-        command += "babelify --standalone #{config[:name]} -o #{dest}.js "
+        command += "babelify --standalone #{config[:js_name]} -o #{dest}.js "
         command += "-d -p [ minifyify --map #{File.basename(dest)}.map.json --output #{dest}.map.json ]"
 
         system command
@@ -40,11 +39,17 @@ module Megatron
       end
     end
 
-    def svg
+    def svgs
       require 'esvg'
 
       if @svg.nil?
-        @svg = Esvg::SVG.new(config_file: config[:config_file], path: config[:svg_dir], output_path: config[:javascripts_dir], cli: true, optimize: true)
+        @svg = Esvg::SVG.new({
+          config_file: File.join(config[:root], 'esvg.yml'),
+          path: config[:paths][:svg],
+          output_path: config[:paths][:javascripts],
+          cli: true, 
+          optimize: true
+        })
       else
         @svg.read_files
       end
@@ -54,33 +59,32 @@ module Megatron
 
     def stylesheets
       style = 'nested'
-      sourcemap = 'none'
+      sourcemap = 'true'
 
-      if Megatron.production
+      if Megatron.production?
         style = "compressed"
         sourcemap = 'auto'
       end
 
-      sass_files.each do |file|
-        dest = destination(file).sub(/s[ca]ss$/,'css')
-        system "sass #{file}:#{dest} --style #{style} --sourcemap=#{sourcemap}"
+      post_css = '$(npm bin)/postcss'
 
-        post_css = File.join(config[:npm_dir], 'node_modules', "postcss-cli/bin/postcss")
-        system "#{post_css} --use autoprefixer #{dest} -o #{dest}"
+      Assets.stylesheet_files.each do |file|
+        dest = Assets.destination(file).sub(/(\.css)?\.s[ca]ss$/i,'.css')
+
+        if file.end_with?('.css')
+          system "cp #{file} #{dest}"
+        else
+          cmd = "sass #{file}:#{dest} --style #{style}"
+          cmd += " --sourcemap" if sourcemap
+          system cmd
+        end
+
+        unless `#{post_css}`.empty?
+          system "#{post_css} --use autoprefixer #{dest} -o #{dest}"
+        end
+
         puts "Built: #{relative_path(dest)}"
       end
-    end
-
-    def destination(file)
-      if config[:version]
-        file = file.sub(/(\.\w+)$/, '-'+config[:version]+'\1')
-      end
-
-      File.join(config[:output_dir], File.basename(file))
-    end
-
-    def sass_files
-      Dir[File.join(config[:stylesheets_dir], '*.scss')].reject {|f| File.basename(f).start_with?('_') }
     end
 
     def relative_path(path)
