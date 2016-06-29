@@ -1,13 +1,6 @@
 module Megatron
   module Helpers
     module AssetsHelper
-      def config
-        Megatron.config
-      end
-
-      def public_assets
-        Dir[File.join(config[:paths][:output], '*.*')]
-      end
 
       def get_asset_path(asset)
         host = Megatron.production? ? ENV['ASSETS_CDN'] || config[:assets_cdn] : '/'
@@ -18,13 +11,12 @@ module Megatron
       def asset_tags
         tags = ''
 
-        public_assets.each do |file|
-          name = get_asset_path file.sub(config[:paths][:public], '')
-          case File.extname(file)
-          when '.js'
-            tags += javascript_include_tag(name)
-          when '.css'
-            tags += stylesheet_link_tag(name)
+        Megatron.plugins.each do |plugin|
+          plugin.javascripts.urls.each do |url|
+            tags += javascript_include_tag(url)
+          end
+          plugin.stylesheets.urls.each do |url|
+            tags += stylesheet_link_tag(url)
           end
         end
 

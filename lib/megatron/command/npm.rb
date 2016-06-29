@@ -13,17 +13,13 @@ module Megatron
       svgo:         ^0.5.6
     }
 
-    def config
-      Megatron.config
-    end
-
     def setup
       require 'json'
 
       if File.exist?(package_path)
         install
       else
-        if bool_ask("No package.json found at #{config[:root]}\nWould you like to create one?")
+        if bool_ask("No package.json found at #{Dir.pwd}\nWould you like to create one?")
           write_package_json(DEPENDENCIES)
           install
         else
@@ -33,10 +29,8 @@ module Megatron
     end
 
     def install
-      Dir.chdir(config[:root]) do
-        update_package_json
-        system "npm install"
-      end
+      update_package_json
+      system "npm install"
     end
 
     def bool_ask(question)
@@ -46,7 +40,7 @@ module Megatron
     end
 
     def package_path
-      File.join(config[:root], 'package.json')
+      File.join(Dir.pwd, 'package.json')
     end
 
     def node_dependencies

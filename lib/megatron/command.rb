@@ -10,19 +10,33 @@ module Megatron
     extend self
 
     def run(options)
-      config = Megatron.config(options)
 
-      case config[:command]
-      when 'init' 
-        Config.write(options)
+      require 'gondor'
+
+      case options[:command]
+      #when 'init' 
+        #Config.write(options)
       when 'npm' 
         NPM.setup
       when 'build'
-        Build.run
+        puts 'building'
+
+        threads = []
+        Megatron.plugins.each do |plugin|
+
+          FileUtils.mkdir_p(File.join(plugin.paths[:output], plugin.asset_root))
+
+          plugin.assets.each do |asset|
+            puts asset.destination
+            threads << Thread.new { asset.build }
+          end
+        end
+
+        threads.each { |thr| thr.join }
       when 'watch'
         Watch.run
       else
-        puts "Command `#{config[:command]}` not recognized"
+        puts "Command `#{options[:command]}` not recognized"
       end
     end
 

@@ -1,51 +1,84 @@
 module Megatron
   class Plugin
-    attr_reader   :name, :module_name, :root, :version, :production_host,
-                  :assets, :paths, :stylesheets, :javascripts, :svgs, :output
+    attr_reader   :module_name, :gem, :engine,
+                  :stylesheets, :javascripts, :svgs, :destination
 
     def initialize(options)
-
+      @gem             = Gem.loaded_specs[options.delete(:name)]
+      @name            = parent_module.name.downcase
+      @module_name     = parent_module.name
       config(options)
-
-      @root            ||= Gem.loaded_specs[name].full_gem_path
-      @version         ||= Gem.loaded_specs[name].version
-      @module_name     ||= name.split(/[-_]/).collect(&:capitalize).join
-
       expand_asset_paths
 
-      @stylesheets        = Megatron::Assets.add_files(Assets::Sass)
-      @stylesheets.concat   Megatron::Assets.add_files(Assets::Css)
-      @javascripts        = Megatron::Assets.add_files(Assets::Javascipt)
+      # Store the gem path for access later when overriding root
+      parent_module.instance_variable_set(:@gem_path, root)
+      add_assets
 
-      # Svgs rely on Esvg to process files so they get treated differently
-      if Assets.find_files(Assets::Svg)
-        @svgs = [Assets::Svg.new(plugin)]
-      end
+      @engine = create_engine if defined?(Rails)
+    end
 
+    def create_engine
+      # Create a new Rails::Engine
+      return parent_module.const_set('Engine', Class.new(Rails::Engine) do
+        def get_plugin_path
+          parent = Object.const_get(self.class.to_s.split('::').first)
+          path = parent.instance_variable_get("@gem_path")
+          Pathname.new path
+        end
+
+        def config
+          @config ||= Rails::Engine::Configuration.new(get_plugin_path)
+        end
+
+        initializer "#{name.to_s.downcase}.static_assets" do |app|
+          app.middleware.insert_before(::ActionDispatch::Static, ::ActionDispatch::Static, "#{root}/public")
+        end
+      end)
+    end
+
+    def parent_module
+      Object.const_get(self.class.to_s.split('::').first)
+    end
+
+    def add_assets
+      @javascripts = Assets::Javascripts.new(self, paths[:javascripts])
+      @stylesheets = Assets::Stylesheets.new(self, paths[:stylesheets])
+      @svgs        = Assets::Svgs.new(self, paths[:svgs])
+    end
+
+    def assets
+      [@svgs, @stylesheets, @javascripts]
     end
 
     def build
-      stylesheets.map(&:build)
-      javascripts.map(&:build)
-      svgs.map(&:build)
+      threads = []
+      assets.each do |asset|
+        threads << Thread.new { asset.build }
+      end
+
+      threads
+    end
+
+    def watch
+      assets.map(&:watch)
     end
 
     def config(options)
-      name = options[:name].downcase!
-
-      {
-        production_asset_root: "/assets/#{name}/",
-        asset_root:   "/assets/#{name}/",
-        output:       "public/",
-        root:          Gem.loaded_specs[name].full_gem_path,
-        version:       Gem.loaded_specs[name].version,
+      options = {
+        production_asset_root: "/assets/#{@name}",
+        asset_root:    "/assets/#{@name}",
+        destination:   "public/",
+        root:          @gem.full_gem_path,
+        version:       @gem.version.to_s,
         paths: {
-          stylesheets: "app/assets/javascripts/#{name}/",
-          javascripts: "app/assets/stylesheets/#{name}/",
-          svgs:        "app/assets/svgs/#{name}/",
+          stylesheets: "app/assets/stylesheets/#{@name}",
+          javascripts: "app/assets/javascripts/#{@name}",
+          svgs:        "app/assets/svgs/#{@name}",
         }
-      }.merge(options).each do |k,v|
-        set_instance(k,v) 
+      }.merge(options)
+
+      options.each do |k,v|
+        set_instance(k.to_s,v) 
       end
     end
 
@@ -54,6 +87,7 @@ module Megatron
       @paths.each do |type, path|
         @paths[type] = File.join(root, path)
       end
+      @destination = File.join(root, @destination)
     end
 
     def asset_root
@@ -65,6 +99,42 @@ module Megatron
     end
 
     private
+
+    def asset_ext(klass)
+      klass.name.split('::').last.downcase
+    end
+    
+    # Find files based on class type and
+    # return an array of Classes for each file
+    def add_files(klass)
+      ext = asset_ext klass
+      find_files(ext).map do |path| 
+        klass.new(self, path)
+      end
+    end
+
+    def glob(asset_ext)
+
+    end
+
+    # Find files by class type and extension
+    def find_files(ext)
+
+      files = Dir[File.join(paths[ext.to_sym], asset_glob(ext))]
+
+      # Filter out partials
+      files.reject { |f| File.basename(f).start_with?('_') }
+    end
+
+    def asset_glob(type)
+      case type
+      when "sass"
+        "*.s[ca]ss"
+      else
+        "*.#{type}"
+      end
+    end
+
 
     # Convert configuration into instance variables
     def set_instance(name, value)

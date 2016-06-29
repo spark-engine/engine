@@ -1,10 +1,10 @@
 module Megatron
   module Helpers
     module LayoutHelper
-      def layout(options={}, &block)
+      def layout(name, options={}, &block)
         layout = options.delete(:layout) || 'application'
         yield
-        render template: "layouts/gondor/#{layout}"
+        render template: "layouts/#{name}/#{layout}"
       end
 
       def javascripts(&block)
