@@ -1,9 +1,7 @@
 require "yaml"
 
-#require "megatron/command/watch"
 require "megatron/command/help"
 require "megatron/command/npm"
-#require "megatron/command/compress"
 
 module Megatron
   module Command
@@ -12,30 +10,18 @@ module Megatron
     def run(options)
 
       case options[:command]
-      when 'init' 
+      when 'new'
         #Config.write(options)
       when 'npm' 
         from_root { NPM.setup }
       when 'build'
-        rake(:build)
+        frok_rails { "rake megatron:build" }
       when 'watch'
-        rake(:watch)
+        frok_rails { "rake megatron:watch" }
       when 'server'
-        rake(:server)
+        frok_rails { "rake megatron:server" }
       else
         puts "Command `#{options[:command]}` not recognized"
-      end
-    end
-
-    def rake(command)
-      from_rails do
-        system "rake megatron:#{command}"
-      end
-    end
-
-    def root(command)
-      from_root do
-        system "rake megatron:#{command}"
       end
     end
 
