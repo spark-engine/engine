@@ -19,7 +19,7 @@ module Megatron
           end
 
           dest = destination(file) 
-          npm_sh "postcss --use autoprefixer #{dest} -o #{dest}" if npm_module_installed "postcss -v"
+          npm_command "postcss --use autoprefixer #{dest} -o #{dest}"
 
           puts build_msg(file)
         end

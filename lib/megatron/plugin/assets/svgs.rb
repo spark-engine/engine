@@ -10,6 +10,7 @@ module Megatron
         @svg = Esvg::SVG.new({
           config_file: File.join(plugin.root, 'esvg.yml'),
           path: path,
+          tmp_path: File.join(Megatron.rails_path, 'tmp/cache/assets'),
           js_path: File.join(plugin.paths[:javascripts], '_svg.js'),
           optimize: true
         })

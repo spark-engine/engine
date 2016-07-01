@@ -2,11 +2,10 @@
   #require d.name
 #end
 
-require "megatron/version"
 require "megatron/command"
+require "megatron/version"
 require "megatron/plugin"
 require "megatron/assets"
-#require "megatron/watch"
 
 module Megatron
   extend self
@@ -21,7 +20,7 @@ module Megatron
   end
 
   def register(plugin_module, options={})
-    plugins << plugin_module.const_set('Plugin', Class.new(Megatron::Plugin)).new(options)
+    plugins << plugin_module.new(options)
     patch_rails
   end
 
@@ -33,6 +32,7 @@ module Megatron
   def dispatch(command)
     @threads = []
     send(command)
+    @threads.each { |thr| thr.join }
   end
 
   def build
@@ -41,8 +41,6 @@ module Megatron
     Megatron.plugins.each do |plugin|
       @threads.concat plugin.build
     end
-
-    @threads.each { |thr| thr.join }
   end
 
   def watch
@@ -57,13 +55,11 @@ module Megatron
     Megatron.plugins.each do |plugin|
       @threads.concat plugin.watch
     end
-
-    @threads.compact.each { |thr| thr.join }
   end
 
   def server
+    @threads << Thread.new { system 'rails server' }
     watch
-    @threads << Thread.new { system 'rails s' }
   end
 
   def load_rake_tasks
@@ -100,4 +96,30 @@ module Megatron
     end
   end
 
+  def at_rails_root
+    File.exist?("bin/rails")
+  end
+
+  def at_gem_root
+    !Dir['*.gemspec'].empty?
+  end
+
+  def gem_path
+    if at_gem_root
+      Dir.pwd
+    elsif at_rails_root
+      "../"
+    end
+  end
+
+  def rails_path
+    if at_rails_root
+      Dir.pwd
+    else
+      dir = Dir["**/bin/rails"]
+      if !dir.empty?
+        dir.first.split('/').first
+      end
+    end
+  end
 end

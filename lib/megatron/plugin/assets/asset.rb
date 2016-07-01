@@ -23,15 +23,30 @@ module Megatron
         "Built: #{destination(file).sub(plugin.root+'/','')}"
       end
 
-      # Determine if an NPM module is installed
-      # `$(npm bin)/browserify` will return an empty string if
-      #  browserify module isn't installed
-      def npm_module_installed(cmd)
-        !`$(npm bin)/#{cmd}`.empty?
+      # Determine if an NPM module is installed by checking paths with `npm ls`
+      # Returns path to binary if installed
+      def find_node_module(cmd)
+        require 'open3'
+
+        response = Open3.capture3("npm ls #{cmd}")
+
+        # Look in local `./node_modules` path.
+        # Be sure stderr is empty (the second argument returned by capture3)
+        if response[1].empty?
+          "$(npm bin)/#{cmd}"
+
+        # Check global module path
+        elsif Open3.capture3("npm ls -g #{cmd}")[1].empty?
+          cmd
+        end
       end
 
-      def npm_sh(cmd)
-        system "$(npm bin)/#{cmd}"
+      def npm_command(cmd)
+        cmd = cmd.split(' ')
+        path = find_node_module(cmd.shift)
+        if path
+          system "#{path} #{cmd.join(' ')}"
+        end
       end
 
       def destination(path)
