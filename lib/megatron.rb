@@ -2,6 +2,9 @@
   #require d.name
 #end
 
+require "open3"
+require "json"
+
 require "megatron/command"
 require "megatron/version"
 require "megatron/plugin"

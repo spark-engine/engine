@@ -2,6 +2,8 @@ module Megatron
   module NPM
     extend self
 
+    require "yaml"
+
     DEPENDENCIES = YAML.load %Q{
     private: true
     devDependencies:

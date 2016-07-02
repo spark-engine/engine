@@ -3,6 +3,7 @@ module Megatron
     attr_reader :name, :spec, :path, :gemspec_path
 
     def initialize(name)
+      puts "Creating new plugin #{name}"
       @name = name.downcase
       @module_name = name.split('_').collect(&:capitalize).join
       @gemspec_path = create_gem
@@ -58,12 +59,12 @@ Megatron.register(#{@module_name}::Plugin, {
     def engine_app_scaffold
 
       # Add asset dirs
-      %(images javascripts stylesheets svgs).each do |path|
+      %w(images javascripts stylesheets svgs).each do |path|
         FileUtils.mkdir_p("#{name}/app/assets/#{path}/#{name}")
       end
 
       # Add helper and layout dirs
-      %(helpers views/layouts).each do |path|
+      %w(helpers views/layouts).each do |path|
         FileUtils.mkdir_p("#{name}/app/#{path}/#{name}")
       end
 
@@ -88,13 +89,13 @@ end}
     def engine_site_scaffod
 
       FileUtils.mkdir_p(".#{name}-tmp")
-      Dir.chdir ".#{name}" do
+      Dir.chdir ".#{name}-tmp" do
         response = Open3.capture3("rails plugin new #{name} --mountable --dummy-path=site --skip-test-unit")
         if !response[1].empty?
           exit "FAILED: Please be sure you have the rails gem installed with `gem install rails`"
         end
 
-        %(app config bin config.ru Rakefile public log).each do |item|
+        %w(app config bin config.ru Rakefile public log).each do |item|
           FileUtils.cp_r(File.join(name, item), File.join(path, item))
         end
 
@@ -114,7 +115,7 @@ Gem::Specification.new do |spec|
   spec.name        = "#{spec.name}"
   spec.version     = #{@module_name}::VERSION
   spec.authors     = #{spec.authors}
-  spec.email       = #{spec.emails}
+  spec.email       = #{spec.email}
   spec.summary     = "Summary of your gem."
   spec.description = "Description of your gem (usually longer)."
   spec.license     = "#{spec.license}"

@@ -1,5 +1,6 @@
 require "megatron/command/help"
 require "megatron/command/npm"
+require "megatron/command/scaffold"
 
 module Megatron
   module Command
@@ -9,7 +10,7 @@ module Megatron
 
       case options[:command]
       when 'new'
-        #Config.write(options)
+        Scaffold.new(options[:name])
       when 'npm' 
         from_root { NPM.setup }
       when 'build'
