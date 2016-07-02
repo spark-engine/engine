@@ -13,9 +13,7 @@ module Megatron
             puts build_msg(file)
           end
         else
-          puts "JS BUILD FAILED: browserify NPM module not found."
-          puts "Please add browserify to your package.json and run `npm install`"
-          exit!
+          abort "JS BUILD FAILED: browserify NPM module not found.\n" << "Please add browserify to your package.json and run `npm install`"
         end
       end
     end

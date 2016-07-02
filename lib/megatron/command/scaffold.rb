@@ -3,16 +3,21 @@ module Megatron
     attr_reader :name, :spec, :path, :gemspec_path
 
     def initialize(name)
-      puts "Creating new plugin #{name}"
       @name = name.downcase
       @module_name = name.split('_').collect(&:capitalize).join
+
+      puts "Creating new plugin #{name}"
+      engine_site_scaffod
+
       @gemspec_path = create_gem
-      @path = File.expand_path(File.dirname(name))
+      @path = File.expand_path(File.dirname(@gemspec_path))
       @spec = Gem::Specification.load(@gemspec_path)
 
       bootstrap_gem
       engine_app_scaffold
-      engine_site_scaffod
+      engine_copy
+      prepare_engine_site
+      #reset_git
     end
 
     # Create a new gem with Bundle's gem command
@@ -84,24 +89,112 @@ end}
 end}
       end
 
+      File.open("#{name}/.gitignore", 'a') do |io|
+        io.write %Q{.DS_Store
+log/*.log
+pkg/
+node_modules
+site/log/*.log
+site/tmp/
+.sass-cache}
+      end
+
     end
 
     def engine_site_scaffod
-
       FileUtils.mkdir_p(".#{name}-tmp")
       Dir.chdir ".#{name}-tmp" do
         response = Open3.capture3("rails plugin new #{name} --mountable --dummy-path=site --skip-test-unit")
         if !response[1].empty?
-          exit "FAILED: Please be sure you have the rails gem installed with `gem install rails`"
+          puts response[1]
+          abort "FAILED: Please be sure you have the rails gem installed with `gem install rails`"
         end
+      end
+    end
 
+    def engine_copy
+      site_path = File.join(path, 'site')
+      FileUtils.mkdir_p(site_path)
+
+      Dir.chdir ".#{name}-tmp/#{name}" do
         %w(app config bin config.ru Rakefile public log).each do |item|
-          FileUtils.cp_r(File.join(name, item), File.join(path, item))
+          target = File.join(site_path, item)
+
+          FileUtils.cp_r(File.join('site', item), target)
         end
 
       end
 
       FileUtils.rm_rf(".#{name}-tmp")
+      %w(app/mailers app/models config/database.yml).each do |item|
+        FileUtils.rm_rf(File.join(site_path, item))
+      end
+    end
+
+    def prepare_engine_site
+      site_path = File.join(path, 'site')
+
+      File.open File.join(site_path, 'config/environments/development.rb'), 'w' do |io|
+        io.write %Q{Rails.application.configure do
+  config.cache_classes = false
+
+  # Do not eager load code on boot.
+  config.eager_load = false
+
+  # Show full error reports and disable caching.
+  config.consider_all_requests_local       = true
+  config.action_controller.perform_caching = false
+
+  # Print deprecation notices to the Rails logger.
+  config.active_support.deprecation = :log
+end
+        }
+      end
+
+      File.open File.join(site_path, 'config/application.rb'), 'w' do |io|
+        io.write %Q{require File.expand_path('../boot', __FILE__)
+
+require "rails"
+# Pick the frameworks you want:
+require "action_controller/railtie"
+require "action_view/railtie"
+
+# Require the gems listed in Gemfile, including any gems
+# you've limited to :test, :development, or :production.
+Bundler.require(*Rails.groups)
+
+module Site
+  class Application < Megatron::Application
+  end
+end}
+      end
+
+      File.open File.join(site_path, 'config/routes.rb'), 'w' do |io|
+        io.write %Q{Rails.application.routes.draw do
+  resources :docs, param: :page, path: ''
+end}
+      end
+
+      File.open File.join(site_path, 'app/controllers/docs_controller.rb'), 'w' do |io|
+        io.write %Q{class DocsController < ApplicationController
+  def show
+    render action: "#\{params[:page]\}"
+  end
+end}
+      end
+
+      File.open File.join(site_path, 'app/views/layouts/application.html.erb'), 'w' do |io|
+        io.write %Q{<%= layout '#{name}' do %>\n<% end %>}
+      end
+      FileUtils.mkdir_p File.join(site_path, 'app/views/docs')
+      File.open File.join(site_path, 'app/views/docs/index.html.erb'), 'w' do |io|
+        io.write %Q{<h1>#{@module_name} Documentaiton</h1>}
+      end
+    end
+
+    def reset_git
+      system "git reset"
+      system "git add -A"
     end
 
     def gemspec

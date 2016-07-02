@@ -7,6 +7,8 @@ module Megatron
         @plugin = plugin
         @base = path
 
+        return if !File.exist?(@base)
+
         @svg = Esvg::SVG.new({
           config_file: File.join(plugin.root, 'esvg.yml'),
           path: path,
@@ -17,6 +19,7 @@ module Megatron
       end
 
       def build
+        return if !File.exist?(@base) 
         @svg.read_files
         if write_path = @svg.write
           puts "Built: #{write_path.sub(plugin.root+'/','')}"
