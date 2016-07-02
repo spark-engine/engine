@@ -83,10 +83,23 @@ end}
 
       # Add an a base layout
       File.open("#{name}/app/views/layouts/#{name}/application.html.erb", 'w') do |io|
-        io.write %Q{module #{@module_name}
-  module ApplicationHelper
-  end
-end}
+        io.write %Q{<!DOCTYPE html>
+<html>
+<head>
+  <title>#{@module_name}</title>
+  <%= csrf_meta_tags %>
+  <%= asset_tags %>
+  <%= yield :stylesheets %>
+  <%= yield :javascripts %>
+  <%= yield :head %>
+</head>
+<body>
+
+<div class='site'>
+  <div class='page'><%=yield %></div>
+</div>
+</body>
+</html>}
       end
 
       File.open("#{name}/.gitignore", 'a') do |io|
