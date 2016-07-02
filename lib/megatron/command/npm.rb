@@ -14,7 +14,6 @@ module Megatron
     }
 
     def setup
-      require 'json'
       puts "Installing npm dependencies…"
 
       if File.exist?(package_path)

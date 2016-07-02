@@ -25,40 +25,16 @@ OptionParser.new do |opts|
 
   opts.banner = Megatron::Help.banner(options[:command])
 
-  if options[:command] == 'init'
-    opts.on("-f", "--force", "force write config file") do |val|
+  if options[:command] == 'new'
+    options[:name] = next_arg
+
+    opts.on("-f", "--force", "overwrite existing files") do |val|
       options[:force] = true
     end
   end
 
-  if %w(init npm).include?(options[:command])
+  if options[:command] == 'npm'
     options[:cli_path] = next_arg || Dir.pwd
-  end
-
-  if %w(build watch).include?(options[:command])
-
-    opts.on("-j", "--js", "#{options[:command]} Javascript only") do |val|
-      options[:assets].push 'javascripts'
-      options[:only] = true
-    end
-
-    opts.on("-s", "--stylesheets", "#{options[:command]} Stylesheets only") do |val|
-      options[:assets].push 'stylesheets'
-      options[:only] = true
-    end
-
-    opts.on("-S", "--svg", "#{options[:command]} SVG only") do |val|
-      options[:assets].push 'svg'
-      options[:only] = true
-    end
-
-    opts.on("-o", "--output PATH", String, "Where should JS/CSS/HTML files be written, (default: current directory)") do |path|
-      options[:output_path] = path
-    end
-  end
-
-  opts.on("-c", "--config PATH", String, "Path to a config file (default: megatron.yml, config/megatron.yml)") do |path|
-    options[:config_file] = path
   end
 
   opts.on("-v", "--version", "Print version") do |version|
@@ -74,10 +50,6 @@ OptionParser.new do |opts|
     options[:help] = opts
   end
 end.parse!
-
-if !options[:only]
-  options[:assets] = %w(svg javascripts stylesheets)
-end
 
 if options[:version]
   puts "Megatron version #{Megatron::VERSION}"

@@ -1,5 +1,3 @@
-require "yaml"
-
 require "megatron/command/help"
 require "megatron/command/npm"
 
