@@ -1,9 +1,6 @@
-#Gem.loaded_specs['megatron'].dependencies.each do |d|
-  #require d.name
-#end
-
 require "open3"
 require "json"
+require 'colorize'
 
 require "megatron/command"
 require "megatron/version"

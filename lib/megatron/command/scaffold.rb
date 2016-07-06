@@ -1,23 +1,30 @@
+require 'fileutils'
+
 module Megatron
   class Scaffold
     attr_reader :name, :spec, :path, :gemspec_path
 
     def initialize(name)
+      @cwd = Dir.pwd
       @name = name.downcase
       @module_name = name.split('_').collect(&:capitalize).join
 
-      puts "Creating new plugin #{name}"
+      puts "Creating new plugin #{name}".bold
       engine_site_scaffod
 
       @gemspec_path = create_gem
       @path = File.expand_path(File.dirname(@gemspec_path))
+
+      fix_gemspec_files
+
       @spec = Gem::Specification.load(@gemspec_path)
 
       bootstrap_gem
       engine_app_scaffold
       engine_copy
       prepare_engine_site
-      #reset_git
+      install_npm_modules
+      update_git
     end
 
     # Create a new gem with Bundle's gem command
@@ -35,15 +42,33 @@ module Megatron
       end
     end
 
+    def install_npm_modules
+      Dir.chdir path do
+        NPM.setup
+      end
+    end
+
+    # First remove scaffold spec.files (which rely on git) to avoid errors
+    # when loading the spec
+    def fix_gemspec_files
+      gs = File.read(gemspec_path)
+
+      File.open(gemspec_path, 'w') do |io|
+        io.write gs.gsub(/^.+spec\.files.+$/,'')
+      end
+    end
+
     def bootstrap_gem
 
       # Remove unnecessary bin dir
       FileUtils.rm_rf(File.join(path, 'bin'))
 
-      # Simplify gempsec for these purposes
+      # Simplify gempsec and set up to add assets properly
       File.open(gemspec_path, 'w') do |io|
         io.write gemspec
       end
+
+      action_log "update", gemspec_path
 
       File.open "#{name}/lib/#{name}.rb", 'w' do |io|
         io.write %Q{require 'megatron'
@@ -58,6 +83,7 @@ Megatron.register(#{@module_name}::Plugin, {
   name: '#{name}'
 })}
       end
+      action_log "update", "#{name}/lib/#{name}.rb"
     end
 
     # Add engine's app assets and utilities
@@ -65,12 +91,17 @@ Megatron.register(#{@module_name}::Plugin, {
 
       # Add asset dirs
       %w(images javascripts stylesheets svgs).each do |path|
-        FileUtils.mkdir_p("#{name}/app/assets/#{path}/#{name}")
+        path = "#{name}/app/assets/#{path}/#{name}"
+        FileUtils.mkdir_p path
+        FileUtils.touch File.join(path, '.keep')
+        action_log "create", path
       end
 
       # Add helper and layout dirs
       %w(helpers views/layouts).each do |path|
-        FileUtils.mkdir_p("#{name}/app/#{path}/#{name}")
+        path = "#{name}/app/#{path}/#{name}"
+        FileUtils.mkdir_p path
+        action_log "create", path
       end
 
       # Add an application helper
@@ -79,6 +110,7 @@ Megatron.register(#{@module_name}::Plugin, {
   module ApplicationHelper
   end
 end}
+        action_log "create", "#{name}/app/helpers/#{name}/application_helper.rb"
       end
 
       # Add an a base layout
@@ -101,6 +133,7 @@ end}
 </body>
 </html>}
       end
+      action_log "create", "#{name}/app/views/layouts/#{name}/application.html.erb"
 
       File.open("#{name}/.gitignore", 'a') do |io|
         io.write %Q{.DS_Store
@@ -111,7 +144,7 @@ site/log/*.log
 site/tmp/
 .sass-cache}
       end
-
+      action_log "update", "#{name}/.gitignore"
     end
 
     def engine_site_scaffod
@@ -134,6 +167,7 @@ site/tmp/
           target = File.join(site_path, item)
 
           FileUtils.cp_r(File.join('site', item), target)
+          action_log "create", target.sub(@cwd+'/','')
         end
 
       end
@@ -205,9 +239,11 @@ end}
       end
     end
 
-    def reset_git
-      system "git reset"
-      system "git add -A"
+    def update_git
+      Dir.chdir @name do
+        system "git reset"
+        system "git add -A"
+      end
     end
 
     def gemspec
@@ -238,13 +274,8 @@ end
 }
     end
 
-    def create_empty_dirs(dirs)
-      [dirs].flatten.each do |d|
-        dir = File.join(d)
-        action = Dir.exist?(dir) ? "exists".rjust(12) : "create".rjust(12)
-        FileUtils.mkdir_p dir
-        puts "#{action}  #{dir.sub("#{Dir.pwd}/", '')}/"
-      end
+    def action_log(action, path)
+      puts action.rjust(12).colorize(:green).bold + "  #{path}"
     end
   end
 end

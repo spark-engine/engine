@@ -16,22 +16,18 @@ module Megatron
     }
 
     def setup
-      puts "Installing npm dependencies…"
+      puts "\nInstalling npm dependencies…".bold
 
       if File.exist?(package_path)
+        update_package_json
         install
       else
-        if bool_ask("No package.json found at #{Dir.pwd}\nWould you like to create one?")
-          write_package_json(DEPENDENCIES)
-          install
-        else
-          return
-        end
+        write_package_json(DEPENDENCIES)
+        install
       end
     end
 
     def install
-      update_package_json
       system "npm install"
     end
 
@@ -55,6 +51,8 @@ module Megatron
       File.open(package_path, 'w') do |io|
         io.write(JSON.pretty_generate(contents))
       end
+
+      puts "create".rjust(12).colorize(:green).bold + "  #{package_path}"
     end
 
     def read_package_json
