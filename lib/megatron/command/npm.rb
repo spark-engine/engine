@@ -31,12 +31,6 @@ module Megatron
       system "npm install"
     end
 
-    def bool_ask(question)
-      print "#{question} (Y\\n): "
-      response = $stdin.gets.chomp
-      response.nil? || !response.downcase.start_with?('n')
-    end
-
     def package_path
       File.join(Dir.pwd, 'package.json')
     end
