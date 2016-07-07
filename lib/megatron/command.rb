@@ -12,13 +12,15 @@ module Megatron
       when 'new'
         Scaffold.new(options[:name])
       when 'npm' 
-        from_root NPM.setup
+        from_root { NPM.setup }
       when 'build'
         from_rails "bundle exec rake megatron:build"
       when 'watch'
         from_rails "rake megatron:watch"
       when 'server'
         from_rails "rake megatron:server"
+      when 'rails'
+        from_rails "rails s"
       else
         puts "Command `#{options[:command]}` not recognized"
       end
