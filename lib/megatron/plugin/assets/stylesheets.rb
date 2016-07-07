@@ -46,7 +46,7 @@ module Megatron
 
       # Convert extension
       def versioned(file)
-        super(file).sub(/(\.css)?\.s[ca]ss$/i,'.css')
+        super(file.sub(/(\.css)?\.s[ca]ss$/i,'.css'))
       end
     end
   end

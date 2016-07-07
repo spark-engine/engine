@@ -4,9 +4,9 @@ module Megatron
                   :stylesheets, :javascripts, :svgs, :destination
 
     def initialize(options)
-      @gem             = Gem.loaded_specs[options.delete(:name)]
-      @name            = parent_module.name.downcase
+      @name            = options.delete(:name) 
       @module_name     = parent_module.name
+      @gem             = Gem.loaded_specs[@name]
       config(options)
       expand_asset_paths
 
@@ -51,6 +51,9 @@ module Megatron
     end
 
     def build
+      Command.from_root {
+        FileUtils.mkdir_p(File.join(destination, asset_root))
+      }
       threads = []
       assets.each do |asset|
         threads << Thread.new { asset.build }

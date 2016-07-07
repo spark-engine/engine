@@ -222,6 +222,12 @@ end}
 end}
       end
 
+      File.open File.join(site_path, 'Gemfile'), 'w' do |io|
+        io.write %Q{
+gem 'ratchet_design'
+        }
+      end
+
       File.open File.join(site_path, 'app/controllers/docs_controller.rb'), 'w' do |io|
         io.write %Q{class DocsController < ApplicationController
   def show
