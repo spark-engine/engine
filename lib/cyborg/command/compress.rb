@@ -1,9 +1,9 @@
-module Megatron
+module Cyborg
   module GZIP
     ZIP_TYPES = /\.(?:css|html|js|otf|svg|txt|xml)$/
 
     def compress(glob)
-      Dir["#{Megatron.config[:paths][:output]}/#{glob}"].each do |f|
+      Dir["#{Cyborg.config[:paths][:output]}/#{glob}"].each do |f|
         next unless f =~ ZIP_TYPES
 
         mtime = File.mtime(f)

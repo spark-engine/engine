@@ -1,4 +1,4 @@
-module Megatron
+module Cyborg
   module Assets
     class Stylesheets < AssetType
 
@@ -33,7 +33,7 @@ module Megatron
         style = 'nested'
         sourcemap = 'auto'
 
-        if Megatron.production?
+        if Cyborg.production?
           style = "compressed"
           sourcemap = 'false'
         end

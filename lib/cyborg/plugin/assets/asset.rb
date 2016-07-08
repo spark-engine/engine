@@ -1,4 +1,4 @@
-module Megatron
+module Cyborg
   module Assets
     class AssetType
       attr_reader :plugin, :base

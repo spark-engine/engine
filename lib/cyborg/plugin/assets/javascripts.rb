@@ -1,4 +1,4 @@
-module Megatron
+module Cyborg
   module Assets
     class Javascripts < AssetType
       def ext

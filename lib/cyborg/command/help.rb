@@ -1,4 +1,4 @@
-module Megatron
+module Cyborg
   module Help
     extend self
 
@@ -8,7 +8,7 @@ module Megatron
 Commands:
   #{commands.values.join("\n  ")}
 
-For help with a specific command, run `megatron help command`
+For help with a specific command, run `cyborg help command`
 
 Options:
         HERE
@@ -28,23 +28,23 @@ Options:
     end
 
     def init
-      "megatron init [path]        # Write default config file"
+      "cyborg init [path]        # Write default config file"
     end
 
     def npm
-      "megatron npm [path]         # Add NPM dependencies (path: dir with package.json, defaults to '.')"
+      "cyborg npm [path]         # Add NPM dependencies (path: dir with package.json, defaults to '.')"
     end
 
     def build
-      "megatron build [options]    # Build assets"
+      "cyborg build [options]    # Build assets"
     end
 
     def watch
-      "megatron watch [options]    # Build assets when files change"
+      "cyborg watch [options]    # Build assets when files change"
     end
 
     def help
-      "megatron help [command]     # Show help for a specific command"
+      "cyborg help [command]     # Show help for a specific command"
     end
   end
 end

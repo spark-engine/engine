@@ -2,14 +2,14 @@ require "open3"
 require "json"
 require 'colorize'
 
-require "megatron/command"
-require "megatron/version"
-require "megatron/plugin"
-require "megatron/assets"
+require "cyborg/command"
+require "cyborg/version"
+require "cyborg/plugin"
+require "cyborg/assets"
 
-module Megatron
+module Cyborg
   extend self
-  autoload :Application, "megatron/middleware"
+  autoload :Application, "cyborg/middleware"
 
   def production?
     ENV['CI'] || ENV['RAILS_ENV'] == 'production'
@@ -38,7 +38,7 @@ module Megatron
   def build
     puts 'Building…'
 
-    Megatron.plugins.each do |plugin|
+    Cyborg.plugins.each do |plugin|
       @threads.concat plugin.build
     end
   end
@@ -48,11 +48,11 @@ module Megatron
     require 'listen'
 
     trap("SIGINT") { 
-      puts "\nMegatron watcher stopped. Have a nice day!"
+      puts "\nCyborg watcher stopped. Have a nice day!"
       exit! 
     }
 
-    Megatron.plugins.each do |plugin|
+    Cyborg.plugins.each do |plugin|
       @threads.concat plugin.watch
     end
   end
@@ -65,20 +65,20 @@ module Megatron
   def load_rake_tasks
     return if @tasks_loaded
     plugins.first.engine.rake_tasks do
-      namespace :megatron do
-        desc "Megatron build task"
+      namespace :cyborg do
+        desc "Cyborg build task"
         task :build do
-          Megatron.dispatch(:build)
+          Cyborg.dispatch(:build)
         end
 
         desc "Watch assets for build"
         task :watch do
-          Megatron.dispatch(:watch)
+          Cyborg.dispatch(:watch)
         end
 
         desc "Start rails and watch assets for build"
         task :server do
-          Megatron.dispatch(:server)
+          Cyborg.dispatch(:server)
         end
       end
     end
@@ -87,11 +87,11 @@ module Megatron
   end
 
   def load_helpers
-    require "megatron/helpers/asset_helpers"
-    require "megatron/helpers/layout_helpers"
+    require "cyborg/helpers/asset_helpers"
+    require "cyborg/helpers/layout_helpers"
 
-    Megatron::Helpers.constants.each do |c|
-      helper = Megatron::Helpers.const_get(c)
+    Cyborg::Helpers.constants.each do |c|
+      helper = Cyborg::Helpers.const_get(c)
       ActionView::Base.send :include, helper if defined? ActionView::Base
     end
   end

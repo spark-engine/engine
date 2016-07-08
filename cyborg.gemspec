@@ -1,10 +1,10 @@
 # coding: utf-8
 $:.push File.expand_path("../lib", __FILE__)
-require 'megatron/version'
+require 'cyborg/version'
 
 Gem::Specification.new do |spec|
-  spec.name          = "megatron"
-  spec.version       = Megatron::VERSION
+  spec.name          = "cyborg"
+  spec.version       = Cyborg::VERSION
   spec.authors       = ["Brandon Mathis", "Jérôme Gravel-Niquet"]
   spec.email         = ["brandon@imathis.com", "jeromegn@gmail.com"]
 
