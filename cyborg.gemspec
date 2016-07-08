@@ -5,12 +5,12 @@ require 'cyborg/version'
 Gem::Specification.new do |spec|
   spec.name          = "cyborg"
   spec.version       = Cyborg::VERSION
-  spec.authors       = ["Brandon Mathis", "Jérôme Gravel-Niquet"]
-  spec.email         = ["brandon@imathis.com", "jeromegn@gmail.com"]
+  spec.authors       = ["Brandon Mathis"]
+  spec.email         = ["brandon@imathis.com"]
 
-  spec.summary       = %q{A Style-guide system for Rails and humans.}
-  spec.description   = %q{A Style-guide system for Rails and humans.}
-  #spec.homepage      = ""
+  spec.summary       = %q{Build style-guide plugins Rails (and humans).}
+  spec.description   = %q{Build style-guide plugins Rails (and humans).}
+  spec.homepage      = "https://github.com/compose-ui/cyborg"
   spec.license       = "MIT"
 
   spec.files         = `git ls-files -z`.split("\x0").reject { |f| f.match(%r{^(test|spec|features)/}) }
