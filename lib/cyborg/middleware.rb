@@ -1,6 +1,6 @@
 require 'rack/cors'
 
-module Megatron
+module Cyborg
   class Application < Rails::Application
     config.middleware.insert_before ActionDispatch::Static, Rack::Deflater
 

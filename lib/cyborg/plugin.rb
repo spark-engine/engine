@@ -1,4 +1,4 @@
-module Megatron
+module Cyborg
   class Plugin
     attr_reader   :module_name, :gem, :engine,
                   :stylesheets, :javascripts, :svgs, :destination
@@ -94,7 +94,7 @@ module Megatron
     end
 
     def asset_root
-      if Megatron.production? 
+      if Cyborg.production? 
         plugin.production_asset_root
       else
         plugin.asset_root

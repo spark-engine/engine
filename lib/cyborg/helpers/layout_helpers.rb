@@ -1,4 +1,4 @@
-module Megatron
+module Cyborg
   module Helpers
     module LayoutHelper
       def layout(name, options={}, &block)

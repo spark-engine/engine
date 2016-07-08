@@ -1,9 +1,9 @@
-module Megatron
+module Cyborg
   module Helpers
     module AssetsHelper
 
       def get_asset_path(asset)
-        host = Megatron.production? ? ENV['ASSETS_CDN'] || config[:assets_cdn] : '/'
+        host = Cyborg.production? ? ENV['ASSETS_CDN'] || config[:assets_cdn] : '/'
 
         File.join(host, asset)
       end
@@ -11,7 +11,7 @@ module Megatron
       def asset_tags
         tags = ''
 
-        Megatron.plugins.each do |plugin|
+        Cyborg.plugins.each do |plugin|
           plugin.javascripts.urls.each do |url|
             tags += javascript_include_tag(url)
           end

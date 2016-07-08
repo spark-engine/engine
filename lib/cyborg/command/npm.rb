@@ -1,4 +1,4 @@
-module Megatron
+module Cyborg
   module NPM
     extend self
 

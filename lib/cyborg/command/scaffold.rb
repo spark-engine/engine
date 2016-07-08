@@ -1,6 +1,6 @@
 require 'fileutils'
 
-module Megatron
+module Cyborg
   class Scaffold
     attr_reader :name, :spec, :path, :gemspec_path
 
@@ -75,11 +75,11 @@ module Megatron
 require '#{name}/version'
 
 module #{@module_name}
-  class Plugin < Megatron::Plugin
+  class Plugin < Cyborg::Plugin
   end
 end
 
-Megatron.register(#{@module_name}::Plugin, {
+Cyborg.register(#{@module_name}::Plugin, {
   name: '#{name}'
 })}
       end
@@ -211,7 +211,7 @@ require "action_view/railtie"
 Bundler.require(*Rails.groups)
 
 module Site
-  class Application < Megatron::Application
+  class Application < Cyborg::Application
   end
 end}
       end
@@ -220,12 +220,6 @@ end}
         io.write %Q{Rails.application.routes.draw do
   resources :docs, param: :page, path: ''
 end}
-      end
-
-      File.open File.join(site_path, 'Gemfile'), 'w' do |io|
-        io.write %Q{
-gem 'ratchet_design'
-        }
       end
 
       File.open File.join(site_path, 'app/controllers/docs_controller.rb'), 'w' do |io|
