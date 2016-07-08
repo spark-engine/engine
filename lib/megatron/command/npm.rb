@@ -2,6 +2,8 @@ module Megatron
   module NPM
     extend self
 
+    require "yaml"
+
     DEPENDENCIES = YAML.load %Q{
     private: true
     devDependencies:
@@ -13,43 +15,24 @@ module Megatron
       svgo:         ^0.5.6
     }
 
-    def config
-      Megatron.config
-    end
-
     def setup
-      require 'json'
-
-      paths = [config[:npm_dir], config[:cli_path]].compact
-      config[:npm_dir] = paths.select{ |p| File.directory?(File.expand_path(p))}.first
+      puts "\nInstalling npm dependencies…".bold
 
       if File.exist?(package_path)
+        update_package_json
         install
       else
-        if bool_ask("No package.json found at #{config[:npm_dir]}\nWould you like to create one?")
-          write_package_json(DEPENDENCIES)
-          install
-        else
-          return
-        end
+        write_package_json(DEPENDENCIES)
+        install
       end
     end
 
     def install
-      Dir.chdir(config[:npm_dir]) do
-        update_package_json
-        system "npm install"
-      end
-    end
-
-    def bool_ask(question)
-      print "#{question} (Y\\n): "
-      response = $stdin.gets.chomp
-      response.nil? || !response.downcase.start_with?('n')
+      system "npm install"
     end
 
     def package_path
-      File.expand_path(File.join(config[:npm_dir], 'package.json'))
+      File.join(Dir.pwd, 'package.json')
     end
 
     def node_dependencies
@@ -59,14 +42,15 @@ module Megatron
     end
 
     def write_package_json(contents)
-      FileUtils.mkdir_p(config[:npm_dir])
-      File.open(File.join(config[:npm_dir], 'package.json'), 'w') do |io|
+      File.open(package_path, 'w') do |io|
         io.write(JSON.pretty_generate(contents))
       end
+
+      puts "create".rjust(12).colorize(:green).bold + "  #{package_path}"
     end
 
     def read_package_json
-      JSON.parse(File.read(File.join(config[:npm_dir], 'package.json')))
+      JSON.parse File.read(package_path)
     end
 
     def update_package_json
@@ -87,10 +71,6 @@ module Megatron
       package.delete('dependencies') if package['dependencies'].empty?
       
       write_package_json(package)
-    end
-
-    def update_dependency(package, dependency)
-
     end
 
   end
