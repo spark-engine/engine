@@ -6,6 +6,10 @@ module Cyborg
         "*[ca]ss"
       end
 
+      def asset_tag(*args)
+        stylesheet_link_tag(args)
+      end
+
       def build(ext=nil)
         files = find_files
         files = files.reject {|f| !f.match(/\.#{ext}/) } if ext

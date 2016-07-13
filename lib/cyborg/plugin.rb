@@ -1,6 +1,6 @@
 module Cyborg
   class Plugin
-    attr_reader   :module_name, :gem, :engine,
+    attr_reader   :module_name, :gem, :engine, :name,
                   :stylesheets, :javascripts, :svgs, :destination
 
     def initialize(options)
@@ -20,6 +20,7 @@ module Cyborg
     def create_engine
       # Create a new Rails::Engine
       return parent_module.const_set('Engine', Class.new(Rails::Engine) do
+
         def get_plugin_path
           parent = Object.const_get(self.class.to_s.split('::').first)
           path = parent.instance_variable_get("@gem_path")

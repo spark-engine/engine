@@ -9,10 +9,31 @@ module Cyborg
       end
 
       def find_files
-        files = Dir[File.join(base, "*.#{ext}")]
+        if @files
+          @files
+        else
+          files = Dir[File.join(base, "*.#{ext}")].reject do |f|
+            # Filter out partials
+            File.basename(f).start_with?('_')
+          end
 
-        # Filter out partials
-        files.reject { |f| File.basename(f).start_with?('_') }
+          @files = files if Cyborg.production?
+          files
+        end
+      end
+
+      def filter_files(names=nil)
+        names = [names].flatten.compact.map do |n|
+          File.basename(n).sub(/(\..+)$/,'')
+        end
+
+        if !names.empty?
+          find_files.select do |f|
+            names.include? File.basename(f).sub(/(\..+)$/,'')
+          end
+        else
+          find_files
+        end
       end
 
       def versioned(path)
@@ -56,8 +77,8 @@ module Cyborg
         File.join(plugin.asset_root, versioned(path))
       end
 
-      def urls
-        find_files.map{ |file| url(file) }
+      def urls(names=nil)
+        filter_files(names).map{ |file| url(file) }
       end
 
       def watch

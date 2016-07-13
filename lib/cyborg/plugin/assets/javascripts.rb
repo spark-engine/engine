@@ -5,6 +5,10 @@ module Cyborg
         "js"
       end
 
+      def asset_tag(*args)
+        javascript_include_tag(args)
+      end
+
       def build
         if find_node_module "browserify"
           find_files.each do |file|

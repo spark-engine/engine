@@ -9,18 +9,19 @@ require "cyborg/assets"
 
 module Cyborg
   extend self
+  attr_accessor :plugin
   autoload :Application, "cyborg/middleware"
 
   def production?
     ENV['CI'] || ENV['RAILS_ENV'] == 'production'
   end
 
-  def plugins
-    @plugins ||= []
+  def plugin
+    @plugin
   end
 
   def register(plugin_module, options={})
-    plugins << plugin_module.new(options)
+    @plugin = plugin_module.new(options)
     patch_rails
   end
 
@@ -37,10 +38,7 @@ module Cyborg
 
   def build
     puts 'Building…'
-
-    Cyborg.plugins.each do |plugin|
-      @threads.concat plugin.build
-    end
+    @threads.concat plugin.build
   end
 
   def watch
@@ -52,9 +50,7 @@ module Cyborg
       exit! 
     }
 
-    Cyborg.plugins.each do |plugin|
-      @threads.concat plugin.watch
-    end
+    @threads.concat plugin.watch
   end
 
   def server
@@ -63,8 +59,7 @@ module Cyborg
   end
 
   def load_rake_tasks
-    return if @tasks_loaded
-    plugins.first.engine.rake_tasks do
+    plugin.engine.rake_tasks do
       namespace :cyborg do
         desc "Cyborg build task"
         task :build do
@@ -82,8 +77,6 @@ module Cyborg
         end
       end
     end
-
-    @tasks_loaded = true
   end
 
   def load_helpers
