@@ -22,9 +22,6 @@ module Cyborg
             build_sass(file)
           end
 
-          dest = destination(file) 
-          npm_command "postcss --use autoprefixer #{dest} -o #{dest}"
-
           puts build_msg(file)
         end
       end
@@ -45,6 +42,9 @@ module Cyborg
         dest = destination(file)
 
         system "sass #{file}:#{dest} --style #{style} --sourcemap=#{sourcemap}"
+
+        dest = destination(file) 
+        npm_command "postcss --use autoprefixer #{dest} -o #{dest}"
       end
 
 
