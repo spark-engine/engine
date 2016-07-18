@@ -51,6 +51,10 @@ module Cyborg
       [@svgs, @stylesheets, @javascripts]
     end
 
+    def svgs?
+      @svgs.icons.nil?
+    end
+
     def build
       Command.from_root {
         FileUtils.mkdir_p(File.join(destination, asset_root))

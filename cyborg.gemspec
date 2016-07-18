@@ -19,7 +19,7 @@ Gem::Specification.new do |spec|
   spec.require_paths = ["lib"]
 
   spec.add_runtime_dependency "sass"
-  spec.add_runtime_dependency "esvg", "~> 2.8.10"
+  spec.add_runtime_dependency "esvg", "~> 2.9.1"
   spec.add_runtime_dependency "listen", "~> 3.0"
   spec.add_runtime_dependency 'block_helpers', '~> 0.3.3'
   spec.add_runtime_dependency 'colorize'

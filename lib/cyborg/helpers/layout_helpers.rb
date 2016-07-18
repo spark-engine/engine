@@ -1,8 +1,9 @@
 module Cyborg
   module Helpers
     module LayoutHelper
-      def layout(name=nil, options={}, &block)
-        layout = name || options.delete(:layout) || 'application'
+      def layout(*args, &block)
+        options = args.last.is_a?(Hash) ? args.pop : {}
+        layout = args.first || 'application'
         yield
         render template: "layouts/#{Cyborg.plugin.name}/#{layout}"
       end
@@ -13,14 +14,6 @@ module Cyborg
 
       def stylesheets(&block)
         content_for :stylesheets, &block
-      end
-
-      def main(options={}, &block)
-        content_for :main, &block
-      end
-
-      def sidebar(&block)
-        content_for :sidebar, &block
       end
     end
   end
