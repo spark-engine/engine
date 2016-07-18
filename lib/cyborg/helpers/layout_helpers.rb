@@ -1,10 +1,10 @@
 module Cyborg
   module Helpers
     module LayoutHelper
-      def layout(name, options={}, &block)
-        layout = options.delete(:layout) || 'application'
+      def layout(name=nil, options={}, &block)
+        layout = name || options.delete(:layout) || 'application'
         yield
-        render template: "layouts/#{name}/#{layout}"
+        render template: "layouts/#{Cyborg.plugin.name}/#{layout}"
       end
 
       def javascripts(&block)
