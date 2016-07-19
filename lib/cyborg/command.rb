@@ -9,25 +9,51 @@ module Cyborg
     def run(options)
 
       case options[:command]
-      when 'new'
+      when 'new', 'n'
         Scaffold.new(options[:name])
-      when 'npm' 
-        from_root { NPM.setup }
-      when 'build'
-        from_root { Cyborg.dispatch(:build, options) }
-      when 'watch'
-        from_root { Cyborg.dispatch(:watch, options) }
-      when 'server'
-        from_root { Cyborg.dispatch(:server, options) }
-      when 'rails'
-        from_rails "rails s"
+      when 'build', 'b'
+        from_root { dispatch(:build, options) }
+      when 'watch', 'w'
+        from_root { dispatch(:watch, options) }
+      when 'server', 's'
+        from_root { dispatch(:server, options) }
       else
         puts "Command `#{options[:command]}` not recognized"
       end
     end
 
-    def load_rails
+    # Handles running threaded commands
+    #
+    def dispatch(command, *args)
+      @threads = []
+      send(command, *args)
+      @threads.each { |thr| thr.join }
+    end
+
+    # Build assets
+    def build(options={})
+      puts 'Building…'
       require File.join(Dir.pwd, Cyborg.rails_path, 'config/application')
+      @threads.concat Cyborg.plugin.build(options)
+    end
+
+    # Watch assets for changes and build
+    def watch(options={})
+      build(options)
+      require 'listen'
+
+      trap("SIGINT") { 
+        puts "\nCyborg watcher stopped. Have a nice day!"
+        exit! 
+      }
+
+      @threads.concat Cyborg.plugin.watch(options)
+    end
+
+    # Run rails server and watch assets
+    def server(options={})
+      @threads << Thread.new { from_rails 'rails server' }
+      watch(options) if options[:watch]
     end
 
     def from_rails(command=nil, &blk)

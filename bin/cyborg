@@ -15,7 +15,7 @@ end
 
 OptionParser.new do |opts|
 
-  options[:help] = ARGV.shift if ARGV.first == 'help'
+  options[:help] = ARGV.shift if %w(help h).include?(ARGV.first)
 
   if ARGV.empty?
     options[:help] = 'help' # show help as default subcommand
@@ -25,28 +25,30 @@ OptionParser.new do |opts|
 
   opts.banner = Cyborg::Help.banner(options[:command])
 
-  if options[:command] == 'new'
+  if %w(n new).include? options[:command]
     options[:name] = next_arg
 
-    opts.on("-f", "--force", "overwrite existing files") do |val|
+    opts.on("-f", "--force", "Overwrite existing files") do |val|
       options[:force] = true
     end
   end
 
-  if options[:command] == 'npm'
-    options[:cli_path] = next_arg || Dir.pwd
+  if %w(s server).include? options[:command]
+    opts.on("-w", "--watch", "Watch assets") do |val|
+      options[:watch] = true
+    end
   end
 
-  if %w(build watch server).include? options[:command]
-    opts.on("-j", "--js", "build javascripts") do |val|
+  if %w(b w s build watch server).include? options[:command]
+    opts.on("-j", "--js", "Build javascripts") do |val|
       options[:select_assets] = true
       options[:js] = true
     end
-    opts.on("-c", "--css", "build css") do |val|
+    opts.on("-c", "--css", "Build css") do |val|
       options[:select_assets] = true
       options[:css] = true
     end
-    opts.on("-s", "--svg", "build svg") do |val|
+    opts.on("-s", "--svg", "Build svg") do |val|
       options[:select_assets] = true
       options[:svg] = true
     end

@@ -26,58 +26,7 @@ module Cyborg
   end
 
   def patch_rails
-    load_rake_tasks
     load_helpers
-  end
-
-  def dispatch(command, *args)
-    @threads = []
-    send(command, *args)
-    @threads.each { |thr| thr.join }
-  end
-
-  def build(options={})
-    puts 'Building…'
-    require File.join(Dir.pwd, rails_path, 'config/application')
-    @threads.concat plugin.build(options)
-  end
-
-  def watch(options={})
-    build(options)
-    require 'listen'
-
-    trap("SIGINT") { 
-      puts "\nCyborg watcher stopped. Have a nice day!"
-      exit! 
-    }
-
-    @threads.concat plugin.watch(options)
-  end
-
-  def server(options={})
-    @threads << Thread.new { Cyborg::Command.from_rails 'rails server' }
-    watch(options)
-  end
-
-  def load_rake_tasks
-    plugin.engine.rake_tasks do
-      namespace :cyborg do
-        desc "Cyborg build task"
-        task :build do
-          Cyborg.dispatch(:build)
-        end
-
-        desc "Watch assets for build"
-        task :watch do
-          Cyborg.dispatch(:watch)
-        end
-
-        desc "Start rails and watch assets for build"
-        task :server do
-          Cyborg.dispatch(:server)
-        end
-      end
-    end
   end
 
   def load_helpers

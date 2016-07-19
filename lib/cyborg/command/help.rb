@@ -6,45 +6,49 @@ module Cyborg
       if command.nil?
         <<-HERE
 Commands:
-  #{commands.values.join("\n  ")}
+  #{command_list.map{|c| commands(c.to_sym) }.join("\n  ")}
 
 For help with a specific command, run `cyborg help command`
 
 Options:
         HERE
-      elsif commands[command.to_sym]
-        "\nUsage: #{commands[command.to_sym]}\n\nOptions:\n"
+      elsif commands(command.to_sym)
+        "\nUsage:\n  cyborg #{commands(command.to_sym)}\n\nOptions:\n"
       end
     end
 
-    def commands
-      {
-        new:   new,
-        npm:   npm,
-        build: build,
-        watch: watch,
-        help:  help
-      }
+    def command_list
+      %w(new build watch server help)
+    end
+
+    def commands(command)
+      case command
+      when :new, :n; new
+      when :build, :b; build
+      when :watch, :w; watch
+      when :server, :s; server
+      when :help, :h; help
+      end
     end
 
     def new
-      "cyborg new project_name   # Create a new Cyborg based project"
-    end
-
-    def npm
-      "cyborg npm [path]         # Add NPM dependencies (path: dir with package.json, defaults to '.')"
+      "new <project_name>   # Create a new Cyborg project"
     end
 
     def build
-      "cyborg build [options]    # Build assets"
+      "build [options]      # Build assets"
     end
 
     def watch
-      "cyborg watch [options]    # Build assets when files change"
+      "watch [options]      # Build assets when files change"
+    end
+
+    def server
+      "server [options]     # Serve documentation site"
     end
 
     def help
-      "cyborg help [command]     # Show help for a specific command"
+      "help [command]       # Show help for a specific command"
     end
   end
 end
