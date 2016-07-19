@@ -143,6 +143,7 @@ node_modules
 site/log/*.log
 site/tmp/
 /public/
+browserify-cache.json
 _svg.js
 .sass-cache}
       end
