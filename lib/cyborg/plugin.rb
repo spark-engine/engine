@@ -47,28 +47,35 @@ module Cyborg
       @svgs        = Assets::Svgs.new(self, paths[:svgs])
     end
 
-    def assets
-      [@svgs, @stylesheets, @javascripts]
+    def assets(options={})
+      assets = []
+      if options[:select_assets]
+        assets.push @svgs if options[:svg]
+        assets.push @stylesheets if options[:css]
+        assets.push @javascripts if options[:js]
+      else
+        assets = [@svgs, @stylesheets, @javascripts]
+      end
+
+      assets
     end
 
     def svgs?
       @svgs.icons.nil?
     end
 
-    def build
-      Command.from_root {
-        FileUtils.mkdir_p(File.join(destination, asset_root))
-      }
+    def build(options={})
+      FileUtils.mkdir_p(File.join(destination, asset_root))
       threads = []
-      assets.each do |asset|
+      assets(options).each do |asset|
         threads << Thread.new { asset.build }
       end
 
       threads
     end
 
-    def watch
-      assets.map(&:watch)
+    def watch(options)
+      assets(options).map(&:watch)
     end
 
     def config(options)

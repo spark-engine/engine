@@ -37,6 +37,21 @@ OptionParser.new do |opts|
     options[:cli_path] = next_arg || Dir.pwd
   end
 
+  if %w(build watch server).include? options[:command]
+    opts.on("-j", "--js", "build javascripts") do |val|
+      options[:select_assets] = true
+      options[:js] = true
+    end
+    opts.on("-c", "--css", "build css") do |val|
+      options[:select_assets] = true
+      options[:css] = true
+    end
+    opts.on("-s", "--svg", "build svg") do |val|
+      options[:select_assets] = true
+      options[:svg] = true
+    end
+  end
+
   opts.on("-v", "--version", "Print version") do |version|
     options[:version] = true
   end

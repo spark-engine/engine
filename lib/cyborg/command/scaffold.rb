@@ -142,6 +142,8 @@ pkg/
 node_modules
 site/log/*.log
 site/tmp/
+/public/
+_svg.js
 .sass-cache}
       end
       action_log "update", "#{name}/.gitignore"

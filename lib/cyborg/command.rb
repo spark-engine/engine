@@ -14,16 +14,20 @@ module Cyborg
       when 'npm' 
         from_root { NPM.setup }
       when 'build'
-        from_rails "bundle exec rake cyborg:build"
+        from_root { Cyborg.dispatch(:build, options) }
       when 'watch'
-        from_rails "rake cyborg:watch"
+        from_root { Cyborg.dispatch(:watch, options) }
       when 'server'
-        from_rails "rake cyborg:server"
+        from_root { Cyborg.dispatch(:server, options) }
       when 'rails'
         from_rails "rails s"
       else
         puts "Command `#{options[:command]}` not recognized"
       end
+    end
+
+    def load_rails
+      require File.join(Dir.pwd, Cyborg.rails_path, 'config/application')
     end
 
     def from_rails(command=nil, &blk)

@@ -30,19 +30,20 @@ module Cyborg
     load_helpers
   end
 
-  def dispatch(command)
+  def dispatch(command, *args)
     @threads = []
-    send(command)
+    send(command, *args)
     @threads.each { |thr| thr.join }
   end
 
-  def build
+  def build(options={})
     puts 'Building…'
-    @threads.concat plugin.build
+    require File.join(Dir.pwd, rails_path, 'config/application')
+    @threads.concat plugin.build(options)
   end
 
-  def watch
-    build
+  def watch(options={})
+    build(options)
     require 'listen'
 
     trap("SIGINT") { 
@@ -50,12 +51,12 @@ module Cyborg
       exit! 
     }
 
-    @threads.concat plugin.watch
+    @threads.concat plugin.watch(options)
   end
 
-  def server
-    @threads << Thread.new { system 'rails server' }
-    watch
+  def server(options={})
+    @threads << Thread.new { Cyborg::Command.from_rails 'rails server' }
+    watch(options)
   end
 
   def load_rake_tasks

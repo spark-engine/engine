@@ -19,16 +19,16 @@ Options:
 
     def commands
       {
-        init:  init,
+        new:   new,
         npm:   npm,
         build: build,
         watch: watch,
-        help: help
+        help:  help
       }
     end
 
-    def init
-      "cyborg init [path]        # Write default config file"
+    def new
+      "cyborg new project_name   # Create a new Cyborg based project"
     end
 
     def npm
