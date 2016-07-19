@@ -10,14 +10,14 @@ module Cyborg
       end
 
       def build
-        if find_node_module "browserify"
+        if Open3.capture3("npm ls browserify-incremental")[1].empty?
           find_files.each do |file|
             dest = destination(file).sub(/\.js$/,'')
-            npm_command "browserify #{file} -t babelify --standalone #{plugin.module_name} -o #{dest}.js -d -p [ minifyify --map #{url(file)}.map.json --output #{dest}.map.json ]"
+            system "browserifyinc --cachefile #{Cyborg.rails_path("tmp/cache/assets/.browserify-cache.json")} #{file} -t babelify --standalone #{plugin.module_name} -o #{dest}.js -d -p [ minifyify --map #{url(file).sub(/\.js$/,'')}.map.json --output #{dest}.map.json ]"
             puts build_msg(file)
           end
         else
-          abort "JS BUILD FAILED: browserify NPM module not found.\n" << "Please add browserify to your package.json and run `npm install`"
+          abort "JS BUILD FAILED: browserifyinc NPM module not found.\n" << "Please add browserifyinc to your package.json and run `npm install`"
         end
       end
     end
