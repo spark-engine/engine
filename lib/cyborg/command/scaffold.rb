@@ -10,7 +10,7 @@ module Cyborg
       @module_name = name.split('_').collect(&:capitalize).join
 
       puts "Creating new plugin #{name}".bold
-      engine_site_scaffod
+      engine_site_scaffold
 
       @gemspec_path = create_gem
       @path = File.expand_path(File.dirname(@gemspec_path))
@@ -149,7 +149,7 @@ _svg.js
       action_log "update", "#{name}/.gitignore"
     end
 
-    def engine_site_scaffod
+    def engine_site_scaffold
       FileUtils.mkdir_p(".#{name}-tmp")
       Dir.chdir ".#{name}-tmp" do
         response = Open3.capture3("rails plugin new #{name} --mountable --dummy-path=site --skip-test-unit")
@@ -207,10 +207,14 @@ require "rails"
 # Pick the frameworks you want:
 require "action_controller/railtie"
 require "action_view/railtie"
+require 'bundler'
 
 # Require the gems listed in Gemfile, including any gems
 # you've limited to :test, :development, or :production.
 Bundler.require(*Rails.groups)
+
+require '#{name}'
+require 'sprockets/railtie'
 
 module Site
   class Application < Cyborg::Application
