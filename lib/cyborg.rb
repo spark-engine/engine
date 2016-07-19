@@ -55,8 +55,8 @@ module Cyborg
     end
   end
 
-  def rails_path
-    if at_rails_root
+  def rails_path(sub=nil)
+    path = if at_rails_root
       Dir.pwd
     else
       dir = Dir["**/bin/rails"]
@@ -64,5 +64,7 @@ module Cyborg
         dir.first.split('/').first
       end
     end
+    path = File.join(path, sub) if sub
+    path
   end
 end

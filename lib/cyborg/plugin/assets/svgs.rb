@@ -12,7 +12,7 @@ module Cyborg
         @svg = Esvg.new({
           config_file: File.join(plugin.root, 'esvg.yml'),
           path: path,
-          tmp_path: File.join(Cyborg.rails_path, 'tmp/cache/assets'),
+          tmp_path: Cyborg.rails_path('tmp/cache/assets'),
           js_path: File.join(plugin.paths[:javascripts], '_svg.js'),
           optimize: true
         })

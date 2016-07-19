@@ -33,7 +33,7 @@ module Cyborg
     # Build assets
     def build(options={})
       puts 'Building…'
-      require File.join(Dir.pwd, Cyborg.rails_path, 'config/application')
+      require File.join(Dir.pwd, Cyborg.rails_path('config/application'))
       @threads.concat Cyborg.plugin.build(options)
     end
 
@@ -52,22 +52,8 @@ module Cyborg
 
     # Run rails server and watch assets
     def server(options={})
-      @threads << Thread.new { from_rails 'rails server' }
+      @threads << Thread.new { system "#{Cyborg.rails_path('bin/rails')} server" }
       watch(options) if options[:watch]
-    end
-
-    def from_rails(command=nil, &blk)
-      unless dir = Cyborg.rails_path
-        abort "Command must be run from the root of a Cyborg Plugin project, or in its Rails 'site' directory."
-      end
-
-      Dir.chdir(dir) do
-        if command
-          system command
-        else
-          blk.call
-        end
-      end
     end
 
     def from_root(command=nil, &blk)
