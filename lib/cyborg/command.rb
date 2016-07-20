@@ -7,7 +7,7 @@ module Cyborg
     extend self
 
     def run(options)
-      @production = options[:production]
+      @production = options[:production] || !!options[:command].match(/gem/)
 
       case options[:command]
       when 'new', 'n'
@@ -21,7 +21,7 @@ module Cyborg
       when 'gem:build'
         from_root { gem_build }
       when 'gem:install'
-        from_root { gem_build }
+        from_root { gem_install }
       else
         puts "Command `#{options[:command]}` not recognized"
       end
@@ -32,17 +32,17 @@ module Cyborg
     end
 
     def gem_build
-      dispatch(:build, production: true)
+      dispatch(:build)
       system "bundle exec rake build"
     end
 
     def gem_install
-      dispatch(:build, production: true)
+      dispatch(:build)
       system "bundle exec rake install"
     end
 
     def gem_release
-      dispatch(:build, production: true)
+      dispatch(:build)
       system "bundle exec rake release"
     end
 
