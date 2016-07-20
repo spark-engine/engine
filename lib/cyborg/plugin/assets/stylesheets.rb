@@ -28,11 +28,12 @@ module Cyborg
 
       def build_css(file)
         system "cp #{file} #{destination(file)}"
+        compress(destination(file))
       end
 
       def build_sass(file)
         style = Cyborg.production? ? "compressed" : 'nested'
-        sourcemap = (plugin.debug? || Cyborg.production?) ? 'auto' : 'false'
+        sourcemap = plugin.maps? ? 'auto' : 'false'
 
         dest = destination(file)
 
@@ -40,6 +41,7 @@ module Cyborg
 
         dest = destination(file) 
         npm_command "postcss --use autoprefixer #{dest} -o #{dest}"
+        compress(dest)
       end
 
 

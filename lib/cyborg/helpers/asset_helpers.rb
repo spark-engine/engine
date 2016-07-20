@@ -7,6 +7,7 @@ module Cyborg
         tags = ''
 
         stylesheet_url(args).each do |url|
+          url += '.gz' if Cyborg.production?
           tags += stylesheet_link_tag(url, options)
         end
 
@@ -19,6 +20,7 @@ module Cyborg
 
         puts "searching for: #{javascript_url(args)}"
         javascript_url(args).each do |url|
+          url += '.gz' if Cyborg.production?
           tags += javascript_include_tag(url, options)
         end
 

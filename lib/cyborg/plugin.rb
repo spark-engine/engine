@@ -70,7 +70,7 @@ module Cyborg
     end
 
     def build(options={})
-      @maps = options[:maps]
+      @maps = options[:maps] || Cyborg.production?
       FileUtils.mkdir_p(File.join(destination, asset_root))
       threads = []
       assets(options).each do |asset|
@@ -81,7 +81,7 @@ module Cyborg
     end
 
     def watch(options)
-      @maps = options[:maps]
+      @maps = options[:maps] || Cyborg.production?
       assets(options).map(&:watch)
     end
 

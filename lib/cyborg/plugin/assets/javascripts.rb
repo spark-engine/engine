@@ -16,6 +16,7 @@ module Cyborg
             cmd = "browserifyinc --cachefile #{Cyborg.rails_path("tmp/cache/assets/.browserify-cache.json")} #{file} -t babelify --standalone #{plugin.module_name} -o #{dest}.js -d"
             cmd += " -p [ minifyify --map #{url(file).sub(/\.js$/,'')}.map.json --output #{dest}.map.json ]" if plugin.maps? || Cyborg.production?
             system cmd
+            compress(destination(file))
             puts build_msg(file)
           end
         else

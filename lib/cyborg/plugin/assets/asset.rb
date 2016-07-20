@@ -108,6 +108,22 @@ module Cyborg
         list 
       end
 
+      def compress(file)
+        return unless Cyborg.production?
+        mtime = File.mtime(file)
+        gz_file = "#{file}.gz"
+        return if File.exist?(gz_file) && File.mtime(gz_file) >= mtime
+
+        File.open(gz_file, "wb") do |dest|
+          gz = Zlib::GzipWriter.new(dest, Zlib::BEST_COMPRESSION)
+          gz.mtime = mtime.to_i
+          IO.copy_stream(open(file), gz)
+          gz.close
+        end
+
+        File.utime(mtime, mtime, gz_file)
+      end
+
     end
   end
 end
