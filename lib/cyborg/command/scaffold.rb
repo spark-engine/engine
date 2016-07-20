@@ -268,8 +268,7 @@ Gem::Specification.new do |spec|
   spec.description = "Description of your gem (usually longer)."
   spec.license     = "#{spec.license}"
 
-  spec.files = Dir["{app,lib}/**/*", "LICENSE.txt", "README.md"]
-  spec.files.concat Dir["public/**/*#\{#{@module_name}::VERSION\}*"]
+  spec.files = Dir["{app,lib,public}/**/*", "LICENSE.txt", "README.md"]
   spec.require_paths = ["lib"]
 
   spec.add_dependency "rails", "~> 4.2.6"
