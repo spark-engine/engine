@@ -40,20 +40,23 @@ OptionParser.new do |opts|
   end
 
   if %w(b w s build watch server).include? options[:command]
-    opts.on("-j", "--js", "Build javascripts") do |val|
+    opts.on("-j", "--js", "Build javascripts.") do |val|
       options[:select_assets] = true
       options[:js] = true
     end
-    opts.on("-c", "--css", "Build css") do |val|
+    opts.on("-c", "--css", "Build css.") do |val|
       options[:select_assets] = true
       options[:css] = true
     end
-    opts.on("-s", "--svg", "Build svg") do |val|
+    opts.on("-s", "--svg", "Build svgs.") do |val|
       options[:select_assets] = true
       options[:svg] = true
     end
-    opts.on("-m", "--maps", "Enable sourcemaps for javascript and stylesheets") do |val|
+    opts.on("-m", "--maps", "Enable sourcemaps for javascript and stylesheets.") do |val|
       options[:maps] = true
+    end
+    opts.on("-p", "--production", "Build assets as with production mode.") do |val|
+      options[:production] = true
     end
   end
 

@@ -32,7 +32,7 @@ module Cyborg
 
       def build_sass(file)
         style = Cyborg.production? ? "compressed" : 'nested'
-        sourcemap = plugin.debug? ? 'auto' : 'false'
+        sourcemap = (plugin.debug? || Cyborg.production?) ? 'auto' : 'false'
 
         dest = destination(file)
 
