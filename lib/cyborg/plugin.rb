@@ -71,7 +71,9 @@ module Cyborg
 
     def build(options={})
       @maps = options[:maps] || Cyborg.production?
-      FileUtils.mkdir_p(File.join(destination, asset_root))
+      root = File.join(destination, asset_root)
+      FileUtils.rm_rf(root) if Cyborg.production?
+      FileUtils.mkdir_p(root)
       threads = []
       assets(options).each do |asset|
         threads << Thread.new { asset.build }

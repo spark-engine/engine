@@ -268,10 +268,11 @@ Gem::Specification.new do |spec|
   spec.description = "Description of your gem (usually longer)."
   spec.license     = "#{spec.license}"
 
-  spec.files = Dir["{app,config,lib/public}/**/*", "LICENSE.txt", "README.md"]
+  spec.files = Dir["{app,lib}/**/*", "LICENSE.txt", "README.md"]
+  spec.files.concat Dir["public/**/*#\{#{@module_name}::VERSION\}*"]
   spec.require_paths = ["lib"]
 
-  spec.add_dependency "rails", "~> #{`rails -v`.strip.split(' ').last}"
+  spec.add_dependency "rails", "~> 4.2.6"
   spec.add_runtime_dependency "megatron"
 
   spec.add_development_dependency "bundler", "~> 1.12"

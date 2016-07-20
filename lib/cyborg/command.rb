@@ -18,6 +18,10 @@ module Cyborg
         from_root { dispatch(:watch, options) }
       when 'server', 's'
         from_root { dispatch(:server, options) }
+      when 'gem:build'
+        from_root { gem_build }
+      when 'gem:install'
+        from_root { gem_build }
       else
         puts "Command `#{options[:command]}` not recognized"
       end
@@ -25,6 +29,21 @@ module Cyborg
 
     def production?
       @production == true
+    end
+
+    def gem_build
+      dispatch(:build, production: true)
+      system "bundle exec rake build"
+    end
+
+    def gem_install
+      dispatch(:build, production: true)
+      system "bundle exec rake install"
+    end
+
+    def gem_release
+      dispatch(:build, production: true)
+      system "bundle exec rake release"
     end
 
     # Handles running threaded commands
@@ -37,7 +56,7 @@ module Cyborg
 
     # Build assets
     def build(options={})
-      puts 'Building…'
+      puts Cyborg.production? ? 'Building for production…' : 'Building…'
       require File.join(Dir.pwd, Cyborg.rails_path('config/application'))
       @threads.concat Cyborg.plugin.build(options)
     end
