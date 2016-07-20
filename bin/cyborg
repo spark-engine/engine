@@ -52,6 +52,9 @@ OptionParser.new do |opts|
       options[:select_assets] = true
       options[:svg] = true
     end
+    opts.on("-m", "--maps", "Enable sourcemaps for javascript and stylesheets") do |val|
+      options[:maps] = true
+    end
   end
 
   opts.on("-v", "--version", "Print version") do |version|

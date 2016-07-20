@@ -7,6 +7,7 @@ module Cyborg
       @name            = options.delete(:name) 
       @module_name     = parent_module.name
       @gem             = Gem.loaded_specs[@name]
+      @maps            = false
       config(options)
       expand_asset_paths
 
@@ -60,11 +61,16 @@ module Cyborg
       assets
     end
 
+    def maps?
+      @maps == true
+    end
+
     def svgs?
       @svgs.icons.nil?
     end
 
     def build(options={})
+      @maps = options[:maps]
       FileUtils.mkdir_p(File.join(destination, asset_root))
       threads = []
       assets(options).each do |asset|
@@ -75,6 +81,7 @@ module Cyborg
     end
 
     def watch(options)
+      @maps = options[:maps]
       assets(options).map(&:watch)
     end
 

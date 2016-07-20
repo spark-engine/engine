@@ -13,7 +13,7 @@ module Cyborg
   autoload :Application, "cyborg/middleware"
 
   def production?
-    ENV['CI'] || ENV['RAILS_ENV'] == 'production'
+    ENV['CI'] || ENV['RAILS_ENV'] == 'production' || Command.production?
   end
 
   def plugin

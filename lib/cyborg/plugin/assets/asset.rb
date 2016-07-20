@@ -47,8 +47,6 @@ module Cyborg
       # Determine if an NPM module is installed by checking paths with `npm ls`
       # Returns path to binary if installed
       def find_node_module(cmd)
-
-        system "$(npm bin)/#{cmd}"
         response = Open3.capture3("npm ls #{cmd}")
 
         # Look in local `./node_modules` path.

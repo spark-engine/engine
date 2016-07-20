@@ -31,13 +31,8 @@ module Cyborg
       end
 
       def build_sass(file)
-        style = 'nested'
-        sourcemap = 'auto'
-
-        if Cyborg.production?
-          style = "compressed"
-          sourcemap = 'false'
-        end
+        style = Cyborg.production? ? "compressed" : 'nested'
+        sourcemap = plugin.debug? ? 'auto' : 'false'
 
         dest = destination(file)
 

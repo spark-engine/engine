@@ -7,6 +7,7 @@ module Cyborg
     extend self
 
     def run(options)
+      @production = options[:production]
 
       case options[:command]
       when 'new', 'n'
@@ -20,6 +21,10 @@ module Cyborg
       else
         puts "Command `#{options[:command]}` not recognized"
       end
+    end
+
+    def production?
+      @production == true
     end
 
     # Handles running threaded commands

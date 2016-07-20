@@ -13,7 +13,9 @@ module Cyborg
         if Open3.capture3("npm ls browserify-incremental")[1].empty?
           find_files.each do |file|
             dest = destination(file).sub(/\.js$/,'')
-            system "browserifyinc --cachefile #{Cyborg.rails_path("tmp/cache/assets/.browserify-cache.json")} #{file} -t babelify --standalone #{plugin.module_name} -o #{dest}.js -d -p [ minifyify --map #{url(file).sub(/\.js$/,'')}.map.json --output #{dest}.map.json ]"
+            cmd = "browserifyinc --cachefile #{Cyborg.rails_path("tmp/cache/assets/.browserify-cache.json")} #{file} -t babelify --standalone #{plugin.module_name} -o #{dest}.js -d"
+            cmd += "-p [ minifyify --map #{url(file).sub(/\.js$/,'')}.map.json --output #{dest}.map.json ]" if plugin.maps? || Cyborg.production?
+            system cmd
             puts build_msg(file)
           end
         else
