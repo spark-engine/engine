@@ -28,7 +28,11 @@ OptionParser.new do |opts|
   if %w(n new).include? options[:command]
     options[:name] = next_arg
 
-    opts.on("-f", "--force", "Overwrite existing files") do |val|
+    opts.on("-e", "--engine ENGINE_NAME", String, "Name the engine (defaults to gem name)") do |engine|
+      options[:engine] = engine
+    end
+
+    opts.on("-f", "--force", "overwrite existing files") do |val|
       options[:force] = true
     end
   end

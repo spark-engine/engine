@@ -2,14 +2,16 @@ require 'fileutils'
 
 module Cyborg
   class Scaffold
-    attr_reader :name, :spec, :path, :gemspec_path
+    attr_reader :gem, :engine, :namespace, :plugin_module, :spec, :path, :gemspec_path
 
-    def initialize(name)
+    def initialize(options)
       @cwd = Dir.pwd
-      @name = name.downcase
-      @module_name = name.split('_').collect(&:capitalize).join
+      @gem = underscorize(options[:name])
+      @engine = underscorize(options[:engine] || options[:name])
+      @namespace = @engine
+      @plugin_module = modulize @engine
 
-      puts "Creating new plugin #{name}".bold
+      puts "Creating new plugin #{@namespace}".bold
       engine_site_scaffold
 
       @gemspec_path = create_gem
@@ -33,9 +35,9 @@ module Cyborg
       begin
         require 'bundler'
         require 'bundler/cli'
-        Bundler::CLI.start(['gem', name])
+        Bundler::CLI.start(['gem', gem])
 
-        Dir.glob(File.join(name, "/*.gemspec")).first
+        Dir.glob(File.join(gem, "/*.gemspec")).first
 
       rescue LoadError
         raise "To use this feature you'll need to install the bundler gem with `gem install bundler`."
@@ -51,11 +53,7 @@ module Cyborg
     # First remove scaffold spec.files (which rely on git) to avoid errors
     # when loading the spec
     def fix_gemspec_files
-      gs = File.read(gemspec_path)
-
-      File.open(gemspec_path, 'w') do |io|
-        io.write gs.gsub(/^.+spec\.files.+$/,'')
-      end
+      write_file(gemspec_path, File.read(gemspec_path).gsub(/^.+spec\.files.+$/,''))
     end
 
     def bootstrap_gem
@@ -64,61 +62,55 @@ module Cyborg
       FileUtils.rm_rf(File.join(path, 'bin'))
 
       # Simplify gempsec and set up to add assets properly
-      File.open(gemspec_path, 'w') do |io|
-        io.write gemspec
-      end
+      write_file(gemspec_path, gemspec)
 
-      action_log "update", gemspec_path
+      write_file("#{gem}/lib/#{gem}.rb", %Q{require 'cyborg'
+require '#{gem}/version'
 
-      File.open "#{name}/lib/#{name}.rb", 'w' do |io|
-        io.write %Q{require 'megatron'
-require '#{name}/version'
-
-module #{@module_name}
+module #{modulize(gem)}
   class Plugin < Cyborg::Plugin
   end
 end
 
-Cyborg.register(#{@module_name}::Plugin, {
-  name: '#{name}'
-})}
-      end
-      action_log "update", "#{name}/lib/#{name}.rb"
+Cyborg.register(#{modulize(gem)}::Plugin, {
+  #{cyborg_plugin_config}
+})})
+    end
+
+    def cyborg_plugin_config
+      plugin_config = "gem: '#{gem}'"
+      plugin_config += ",\n  engine: '#{engine}'" if engine
+      plugin_config
     end
 
     # Add engine's app assets and utilities
     def engine_app_scaffold
 
       # Add asset dirs
-      %w(images javascripts stylesheets svgs).each do |path|
-        path = "#{name}/app/assets/#{path}/#{name}"
-        FileUtils.mkdir_p path
-        FileUtils.touch File.join(path, '.keep')
-        action_log "create", path
-      end
+      files = %w(images javascripts stylesheets svgs).map { |path|
+        "#{gem}/app/assets/#{path}/#{namespace}/.keep"
+      }
+
+      write_file(files, '')
 
       # Add helper and layout dirs
-      %w(helpers views/layouts).each do |path|
-        path = "#{name}/app/#{path}/#{name}"
-        FileUtils.mkdir_p path
-        action_log "create", path
-      end
+      files = %w(helpers views/layouts).each { |path|
+        "#{gem}/app/#{path}/#{namespace}"
+      }
+
+      write_file(files, '')
 
       # Add an application helper
-      File.open("#{name}/app/helpers/#{name}/application_helper.rb", 'w') do |io|
-        io.write %Q{module #{@module_name}
+      write_file("#{gem}/app/helpers/#{namespace}/application_helper.rb", %Q{module #{plugin_module}
   module ApplicationHelper
   end
-end}
-        action_log "create", "#{name}/app/helpers/#{name}/application_helper.rb"
-      end
+end})
 
       # Add an a base layout
-      File.open("#{name}/app/views/layouts/#{name}/application.html.erb", 'w') do |io|
-        io.write %Q{<!DOCTYPE html>
+      write_file("#{gem}/app/views/layouts/#{namespace}/application.html.erb", %Q{<!DOCTYPE html>
 <html>
 <head>
-  <title>#{@module_name}</title>
+  <title>#{plugin_module}</title>
   <%= csrf_meta_tags %>
   <%= asset_tags %>
   <%= yield :stylesheets %>
@@ -131,12 +123,11 @@ end}
   <div class='page'><%=yield %></div>
 </div>
 </body>
-</html>}
-      end
-      action_log "create", "#{name}/app/views/layouts/#{name}/application.html.erb"
+</html>})
 
-      File.open("#{name}/.gitignore", 'a') do |io|
-        io.write %Q{.DS_Store
+
+      # Update .gitignore
+      write_file("#{gem}/.gitignore", %Q{.DS_Store
 log/*.log
 pkg/
 node_modules
@@ -144,15 +135,13 @@ site/log/*.log
 site/tmp/
 /public/
 _svg.js
-.sass-cache}
-      end
-      action_log "update", "#{name}/.gitignore"
+.sass-cache}, 'a')
     end
 
     def engine_site_scaffold
-      FileUtils.mkdir_p(".#{name}-tmp")
-      Dir.chdir ".#{name}-tmp" do
-        response = Open3.capture3("rails plugin new #{name} --mountable --dummy-path=site --skip-test-unit")
+      FileUtils.mkdir_p(".#{gem}-tmp")
+      Dir.chdir ".#{gem}-tmp" do
+        response = Open3.capture3("rails plugin new #{gem} --mountable --dummy-path=site --skip-test-unit")
         if !response[1].empty?
           puts response[1]
           abort "FAILED: Please be sure you have the rails gem installed with `gem install rails`"
@@ -164,7 +153,7 @@ _svg.js
       site_path = File.join(path, 'site')
       FileUtils.mkdir_p(site_path)
 
-      Dir.chdir ".#{name}-tmp/#{name}" do
+      Dir.chdir ".#{gem}-tmp/#{gem}" do
         %w(app config bin config.ru Rakefile public log).each do |item|
           target = File.join(site_path, item)
 
@@ -174,7 +163,7 @@ _svg.js
 
       end
 
-      FileUtils.rm_rf(".#{name}-tmp")
+      FileUtils.rm_rf(".#{gem}-tmp")
       %w(app/mailers app/models config/database.yml).each do |item|
         FileUtils.rm_rf(File.join(site_path, item))
       end
@@ -183,8 +172,7 @@ _svg.js
     def prepare_engine_site
       site_path = File.join(path, 'site')
 
-      File.open File.join(site_path, 'config/environments/development.rb'), 'w' do |io|
-        io.write %Q{Rails.application.configure do
+      write_file(File.join(site_path, 'config/environments/development.rb'), %Q{Rails.application.configure do
   config.cache_classes = false
 
   # Do not eager load code on boot.
@@ -197,11 +185,9 @@ _svg.js
   # Print deprecation notices to the Rails logger.
   config.active_support.deprecation = :log
 end
-        }
-      end
+})
 
-      File.open File.join(site_path, 'config/application.rb'), 'w' do |io|
-        io.write %Q{require File.expand_path('../boot', __FILE__)
+      write_file(File.join(site_path, 'config/application.rb'), %Q{require File.expand_path('../boot', __FILE__)
 
 require "rails"
 # Pick the frameworks you want:
@@ -213,40 +199,31 @@ require 'bundler'
 # you've limited to :test, :development, or :production.
 Bundler.require(*Rails.groups)
 
-require '#{name}'
+require '#{gem}'
 require 'sprockets/railtie'
 
 module Site
   class Application < Cyborg::Application
   end
-end}
-      end
+end})
 
-      File.open File.join(site_path, 'config/routes.rb'), 'w' do |io|
-        io.write %Q{Rails.application.routes.draw do
+      write_file(File.join(site_path, 'config/routes.rb'), %Q{Rails.application.routes.draw do
   resources :docs, param: :page, path: ''
-end}
-      end
+end})
 
-      File.open File.join(site_path, 'app/controllers/docs_controller.rb'), 'w' do |io|
-        io.write %Q{class DocsController < ApplicationController
+      write_file(File.join(site_path, 'app/controllers/docs_controller.rb'), %Q{class DocsController < ApplicationController
   def show
     render action: "#\{params[:page]\}"
   end
-end}
-      end
+end})
 
-      File.open File.join(site_path, 'app/views/layouts/application.html.erb'), 'w' do |io|
-        io.write %Q{<%= layout '#{name}' do %>\n<% end %>}
-      end
-      FileUtils.mkdir_p File.join(site_path, 'app/views/docs')
-      File.open File.join(site_path, 'app/views/docs/index.html.erb'), 'w' do |io|
-        io.write %Q{<h1>#{@module_name} Documentaiton</h1>}
-      end
+      write_file(File.join(site_path, 'app/views/layouts/application.html.erb'), "<%= layout do %>\n<% end %>")
+
+      write_file(File.join(site_path, 'app/views/docs/index.html.erb'), "<h1>#{plugin_module} Documentation</h1>")
     end
 
     def update_git
-      Dir.chdir @name do
+      Dir.chdir gem do
         system "git reset"
         system "git add -A"
       end
@@ -261,7 +238,7 @@ require "#{spec.name}/version"
 # Describe your gem and declare its dependencies:
 Gem::Specification.new do |spec|
   spec.name        = "#{spec.name}"
-  spec.version     = #{@module_name}::VERSION
+  spec.version     = #{modulize(gem)}::VERSION
   spec.authors     = #{spec.authors}
   spec.email       = #{spec.email}
   spec.summary     = "Summary of your gem."
@@ -272,7 +249,7 @@ Gem::Specification.new do |spec|
   spec.require_paths = ["lib"]
 
   spec.add_dependency "rails", "~> 4.2.6"
-  spec.add_runtime_dependency "megatron"
+  spec.add_runtime_dependency "cyborg"
 
   spec.add_development_dependency "bundler", "~> 1.12"
   spec.add_development_dependency "rake", "~> 10.0"
@@ -280,8 +257,36 @@ end
 }
     end
 
+    def write_file(paths, content, mode='w')
+      paths = [paths].flatten
+      paths.each do |path|
+        if File.exist?(path)
+          type = 'update'
+        else
+          FileUtils.mkdir_p(File.dirname(path))
+          type ='create'
+        end
+
+        File.open path, mode do |io|
+          io.write(content)
+        end
+
+        action_log(type, path)
+      end
+    end
+
     def action_log(action, path)
       puts action.rjust(12).colorize(:green).bold + "  #{path}"
+    end
+
+    def modulize(input)
+      input.split('_').collect(&:capitalize).join
+    end
+
+    def underscorize(input)
+      input.gsub(/[A-Z]/) do |char|
+        '_'+char
+      end.sub(/^_/,'').downcase
     end
   end
 end

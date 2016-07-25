@@ -21,15 +21,9 @@ module Cyborg
 
       if File.exist?(package_path)
         update_package_json
-        install
       else
         write_package_json(DEPENDENCIES)
-        install
       end
-    end
-
-    def install
-      system "npm install"
     end
 
     def package_path

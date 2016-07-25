@@ -11,7 +11,7 @@ module Cyborg
 
       case options[:command]
       when 'new', 'n'
-        Scaffold.new(options[:name])
+        Scaffold.new(options)
       when 'build', 'b'
         from_root { dispatch(:build, options) }
       when 'watch', 'w'

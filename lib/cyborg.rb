@@ -22,6 +22,7 @@ module Cyborg
 
   def register(plugin_module, options={})
     @plugin = plugin_module.new(options)
+    @plugin.create_engine
     patch_rails
   end
 

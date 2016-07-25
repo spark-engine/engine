@@ -1,45 +1,50 @@
 module Cyborg
   class Plugin
-    attr_reader   :module_name, :gem, :engine, :name,
+    attr_reader   :name, :gem, :engine,
                   :stylesheets, :javascripts, :svgs, :destination
 
     def initialize(options)
-      @name            = options.delete(:name) 
-      @module_name     = parent_module.name
-      @gem             = Gem.loaded_specs[@name]
+      @name            = options.delete(:engine).downcase
+      @gem             = Gem.loaded_specs[options.delete(:gem)]
       @maps            = false
       config(options)
       expand_asset_paths
 
       # Store the gem path for access later when overriding root
       parent_module.instance_variable_set(:@gem_path, root)
+      parent_module.instance_variable_set(:@cyborg_plugin_name, name)
       add_assets
+    end
 
-      @engine = create_engine if defined?(Rails)
+    def engine_name
+      @engine.name.sub(/::Engine/,'')
     end
 
     def create_engine
       # Create a new Rails::Engine
-      return parent_module.const_set('Engine', Class.new(Rails::Engine) do
+      @engine = parent_module.const_set('Engine', Class.new(Rails::Engine) do
 
-        def get_plugin_path
-          parent = Object.const_get(self.class.to_s.split('::').first)
-          path = parent.instance_variable_get("@gem_path")
-          Pathname.new path
+        def cyborg_plugin_path
+          parent = Object.const_get(self.class.name.sub(/::Engine/,''))
+          Pathname.new parent.instance_variable_get("@gem_path")
         end
 
         def config
-          @config ||= Rails::Engine::Configuration.new(get_plugin_path)
+          @config ||= Rails::Engine::Configuration.new(cyborg_plugin_path)
         end
 
-        initializer "#{name.to_s.downcase}.static_assets" do |app|
+        engine_name Cyborg.plugin.name
+
+        initializer "#{name}.static_assets" do |app|
           app.middleware.insert_before(::ActionDispatch::Static, ::ActionDispatch::Static, "#{root}/public")
         end
       end)
     end
 
     def parent_module
-      Object.const_get(self.class.to_s.split('::').first)
+      mods = self.class.to_s.split('::')
+      mods.pop
+      Object.const_get(mods.join('::'))
     end
 
     def add_assets
@@ -89,15 +94,15 @@ module Cyborg
 
     def config(options)
       options = {
-        production_asset_root: "/assets/#{@name}",
-        asset_root:    "/assets/#{@name}",
+        production_asset_root: "/assets/#{name}",
+        asset_root:    "/assets/#{name}",
         destination:   "public/",
         root:          @gem.full_gem_path,
         version:       @gem.version.to_s,
         paths: {
-          stylesheets: "app/assets/stylesheets/#{@name}",
-          javascripts: "app/assets/javascripts/#{@name}",
-          svgs:        "app/assets/svgs/#{@name}",
+          stylesheets: "app/assets/stylesheets/#{name}",
+          javascripts: "app/assets/javascripts/#{name}",
+          svgs:        "app/assets/svgs/#{name}",
         }
       }.merge(options)
 
