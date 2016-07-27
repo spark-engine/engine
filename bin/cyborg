@@ -62,6 +62,9 @@ OptionParser.new do |opts|
     opts.on("-p", "--production", "Build assets as with production mode.") do |val|
       options[:production] = true
     end
+    opts.on("-C", "--clean", "Remove cache files before build.") do |val|
+      options[:clean] = true
+    end
   end
 
   opts.on("-v", "--version", "Print version") do |version|
@@ -78,20 +81,4 @@ OptionParser.new do |opts|
   end
 end.parse!
 
-if options[:version]
-  puts "Cyborg version #{Cyborg::VERSION}"
-elsif options[:help]
-
-  if options[:help]
-    puts "Cyborg version #{Cyborg::VERSION}\n\n"
-    puts options[:help]
-
-    # Use this if commands get long
-    #IO.popen("less", "w") do |f| 
-      #f.puts "Cyborg version #{Cyborg::VERSION}"
-      #f.puts options[:help]
-    #end
-  end
-else
-  Cyborg::Command.run(options)
-end
+Cyborg::Command.run(options)

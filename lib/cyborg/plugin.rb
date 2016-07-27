@@ -92,6 +92,12 @@ module Cyborg
       assets(options).map(&:watch)
     end
 
+    def clean
+      FileUtils.rm_rf(Cyborg.rails_path('tmp/cache/'))
+      FileUtils.rm_rf('.sass-cache')
+      FileUtils.rm_rf(Cyborg.rails_path('.sass-cache'))
+    end
+
     def config(options)
       options = {
         production_asset_root: "/assets/#{name}",

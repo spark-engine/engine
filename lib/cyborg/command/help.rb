@@ -27,6 +27,7 @@ Options:
       when 'build', 'b'; build
       when 'watch', 'w'; watch
       when 'server', 's'; server
+      when 'clean', 'c'; clean
       when 'help', 'h'; help
       when 'gem:build'; gem_build
       when 'gem:install'; gem_install
@@ -48,6 +49,10 @@ Options:
 
     def server
       "server [options]     # Serve documentation site"
+    end
+
+    def clean
+      "clean                # Remove cache files"
     end
 
     def help
