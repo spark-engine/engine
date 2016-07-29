@@ -14,7 +14,7 @@ module Cyborg
       puts "Creating new plugin #{@namespace}".bold
       engine_site_scaffold
 
-      @gemspec_path = create_gem
+      @gemspec_path = new_gem
       @path = File.expand_path(File.dirname(@gemspec_path))
 
       fix_gemspec_files
@@ -31,17 +31,9 @@ module Cyborg
 
     # Create a new gem with Bundle's gem command
     #
-    def create_gem
-      begin
-        require 'bundler'
-        require 'bundler/cli'
-        Bundler::CLI.start(['gem', gem])
-
-        Dir.glob(File.join(gem, "/*.gemspec")).first
-
-      rescue LoadError
-        raise "To use this feature you'll need to install the bundler gem with `gem install bundler`."
-      end
+    def new_gem
+      system "bundler gem #{gem}"
+      Dir.glob(File.join(gem, "/*.gemspec")).first
     end
 
     def install_npm_modules

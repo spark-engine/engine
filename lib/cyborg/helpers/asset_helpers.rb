@@ -2,6 +2,10 @@ module Cyborg
   module Helpers
     module AssetsHelper
 
+      def cyborg_asset_url(file)
+        Cyborg.plugin.asset_url(file)
+      end
+
       def stylesheet_tag(*args)
         options = args.last.is_a?(Hash) ? args.pop : {}
         tags = ''
@@ -39,8 +43,16 @@ module Cyborg
         stylesheet_tag + javascript_tag
       end
 
-      def pin_tab_icon(path)
-        %Q{<link rel="mask-icon" mask href="#{path}" color="black">}.html_safe
+      def pin_tab_icon_tag(path, color="black")
+        %Q{<link rel="mask-icon" mask href="#{cyborg_asset_url(path)}" color="#{color}">}.html_safe
+      end
+
+      def favicon_tag(source='favicon.ico', options={})
+        tag('link', {
+          :rel  => 'shortcut icon',
+          :type => 'image/x-icon',
+          :href => cyborg_asset_url(source)
+        }.merge!(options.symbolize_keys))
       end
     end
   end

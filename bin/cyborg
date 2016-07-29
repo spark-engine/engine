@@ -18,7 +18,7 @@ OptionParser.new do |opts|
   options[:help] = ARGV.shift if %w(help h).include?(ARGV.first)
 
   if ARGV.empty?
-    options[:help] = 'help' # show help as default subcommand
+    options[:help] = true
   else
     options[:command] = next_arg
   end
@@ -68,15 +68,14 @@ OptionParser.new do |opts|
   end
 
   opts.on("-v", "--version", "Print version") do |version|
-    options[:version] = true
+    options[:command] = 'version'
   end
 
   opts.on("-h", "--help", "Print this message") do |version|
     options[:help] = opts
-    options[:command] = 'help'
   end
 
-  if options[:help] == 'help'
+  if options[:help]
     options[:help] = opts
   end
 end.parse!

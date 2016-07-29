@@ -69,11 +69,11 @@ module Cyborg
       end
 
       def destination(path)
-        File.join(plugin.destination, plugin.asset_root, versioned(path))
+        plugin.asset_path(versioned(path))
       end
 
       def url(path)
-        File.join(plugin.asset_root, versioned(path))
+        plugin.asset_url(versioned(path))
       end
 
       def urls(names=nil)

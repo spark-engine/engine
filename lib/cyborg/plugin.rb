@@ -76,9 +76,9 @@ module Cyborg
 
     def build(options={})
       @maps = options[:maps] || Cyborg.production?
-      root = File.join(destination, asset_root)
-      FileUtils.rm_rf(root) if Cyborg.production?
-      FileUtils.mkdir_p(root)
+      # TODO: be sure gem builds use a clean asset_path
+      #FileUtils.rm_rf(root) if Cyborg.production?
+      FileUtils.mkdir_p(asset_path)
       threads = []
       assets(options).each do |asset|
         threads << Thread.new { asset.build }
@@ -117,7 +117,6 @@ module Cyborg
       end
     end
 
-
     def expand_asset_paths
       @paths.each do |type, path|
         @paths[type] = File.join(root, path)
@@ -125,12 +124,20 @@ module Cyborg
       @destination = File.join(root, @destination)
     end
 
-    def asset_root
-      if Cyborg.production? 
-        plugin.production_asset_root
+    def asset_path(file=nil)
+      dest = File.join(destination, asset_root)
+      dest = File.join(dest, file) if file
+      dest
+    end
+
+    def asset_url(file=nil)
+      path = if Cyborg.production? 
+        production_asset_root
       else
-        plugin.asset_root
+        asset_root
       end
+      path = File.join(path, file) if file
+      path
     end
 
     private

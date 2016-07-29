@@ -7,7 +7,13 @@ module Cyborg
     extend self
 
     def run(options)
-      @production = options[:production] || !!options[:command].match(/gem/)
+      @production = options[:production]
+
+      if options[:help]
+        version
+        puts options[:help]
+        return
+      end
 
       case options[:command]
       when 'new', 'n'
@@ -20,9 +26,6 @@ module Cyborg
         from_root { dispatch(:server, options) }
       when 'clean', 'c'
         from_root { clean }
-      when 'help', 'h'
-        version
-        puts options[:help]
       when 'version'
         version
       when 'gem:build'
