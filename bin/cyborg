@@ -56,9 +56,6 @@ OptionParser.new do |opts|
       options[:select_assets] = true
       options[:svg] = true
     end
-    opts.on("-m", "--maps", "Enable sourcemaps for javascript and stylesheets.") do |val|
-      options[:maps] = true
-    end
     opts.on("-p", "--production", "Build assets as with production mode.") do |val|
       options[:production] = true
     end

@@ -24,6 +24,7 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'block_helpers', '~> 0.3.3'
   spec.add_runtime_dependency 'colorize'
   spec.add_runtime_dependency "bundler", "~> 1.11"
+  spec.add_runtime_dependency "autoprefixer-rails", "~> 6.3"
 
   spec.add_runtime_dependency "rails", "~> 4"
   spec.add_dependency 'rack-cors'

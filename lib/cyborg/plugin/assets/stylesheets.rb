@@ -1,3 +1,6 @@
+require 'sass'
+require "autoprefixer-rails"
+
 module Cyborg
   module Assets
     class Stylesheets < AssetType
@@ -27,19 +30,22 @@ module Cyborg
       end
 
       def build_css(file)
-        system "cp #{file} #{destination(file)}"
+        css = AutoprefixerRails.process(File.read(file)).css
+        File.open(destination(file), 'w') { |io| io.write(css) }
+
         compress(destination(file))
       end
 
       def build_sass(file)
         style = Cyborg.production? ? "compressed" : 'nested'
-        sourcemap = plugin.maps? ? 'auto' : 'none'
 
         dest = destination(file)
 
-        system "sass #{file}:#{dest} --style #{style} --sourcemap=#{sourcemap}"
+        css = Sass.compile_file(file, style: style)
+        css = AutoprefixerRails.process(css).css
 
-        npm_command "postcss --use autoprefixer #{dest} -o #{dest}"
+        File.open(dest, 'w') { |io| io.write(css) }
+
         compress(dest)
       end
 

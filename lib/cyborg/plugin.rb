@@ -6,7 +6,6 @@ module Cyborg
     def initialize(options)
       @name            = options.delete(:engine).downcase
       @gem             = Gem.loaded_specs[options.delete(:gem)]
-      @maps            = false
       config(options)
       expand_asset_paths
 
@@ -66,16 +65,11 @@ module Cyborg
       assets
     end
 
-    def maps?
-      @maps == true
-    end
-
     def svgs?
       @svgs.icons.nil?
     end
 
     def build(options={})
-      @maps = options[:maps] || Cyborg.production?
       # TODO: be sure gem builds use a clean asset_path
       #FileUtils.rm_rf(root) if Cyborg.production?
       FileUtils.mkdir_p(asset_path)
@@ -88,7 +82,6 @@ module Cyborg
     end
 
     def watch(options)
-      @maps = options[:maps] || Cyborg.production?
       assets(options).map(&:watch)
     end
 

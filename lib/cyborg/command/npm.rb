@@ -7,12 +7,10 @@ module Cyborg
     DEPENDENCIES = YAML.load %Q{
     private: true
     devDependencies:
-      autoprefixer: ^5.2.0
       babelify:     ^6.4.0
       browserify:   ^11.2.0
       browserify-incremental: ^3.0.1
       minifyify:    ^7.3.2
-      postcss-cli:  ^1.5.0
       svgo:         ^0.5.6
     }
 

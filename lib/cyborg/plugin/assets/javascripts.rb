@@ -42,7 +42,7 @@ module Cyborg
           "browserifyinc --cachefile #{cache_file(File.basename(dest))} #{file} #{options}"
         end
 
-        if Cyborg.production? || plugin.maps?
+        if Cyborg.production?
           cmd += " -p [ minifyify --map #{url(file).sub(/\.js$/,'')}.map.json --output #{dest}.map.json ]"
         end
 
