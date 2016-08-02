@@ -99,7 +99,8 @@ module Cyborg
 
     # Run rails server and watch assets
     def server(options={})
-      @threads << Thread.new { system "#{Cyborg.rails_path('bin/rails')} server" }
+      options[:port] ||= 3000
+      @threads << Thread.new { system "#{Cyborg.rails_path('bin/rails')} server -p #{options[:port]}" }
       watch(options) if options[:watch]
     end
 

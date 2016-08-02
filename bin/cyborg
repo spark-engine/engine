@@ -56,11 +56,17 @@ OptionParser.new do |opts|
       options[:select_assets] = true
       options[:svg] = true
     end
-    opts.on("-p", "--production", "Build assets as with production mode.") do |val|
+    opts.on("-P", "--production", "Build assets as with production mode.") do |val|
       options[:production] = true
     end
     opts.on("-C", "--clean", "Remove cache files before build.") do |val|
       options[:clean] = true
+    end
+  end
+
+  if %w(s server).include? options[:command]
+    opts.on("-p", "--port PORT", String, "serve site at port") do |val|
+      options[:port] = val
     end
   end
 
