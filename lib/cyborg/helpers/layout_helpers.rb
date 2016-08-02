@@ -1,7 +1,7 @@
 module Cyborg
   module Helpers
     module LayoutHelper
-      def layout(*args, &block)
+      def render_layout(*args, &block)
         options = args.last.is_a?(Hash) ? args.pop : {}
         layout = args.first || 'application'
         yield

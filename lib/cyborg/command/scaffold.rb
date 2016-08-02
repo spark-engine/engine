@@ -209,7 +209,7 @@ end})
   end
 end})
 
-      write_file(File.join(site_path, 'app/views/layouts/application.html.erb'), "<%= layout do %>\n<% end %>")
+      write_file(File.join(site_path, 'app/views/layouts/application.html.erb'), "<%= render_layout do %>\n<% end %>")
 
       write_file(File.join(site_path, 'app/views/docs/index.html.erb'), "<h1>#{plugin_module} Documentation</h1>")
     end
