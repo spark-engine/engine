@@ -4,7 +4,7 @@ module Cyborg
       def render_layout(*args, &block)
         options = args.last.is_a?(Hash) ? args.pop : {}
         layout = args.first || 'application'
-        yield
+        yield if block_given?
         render template: "layouts/#{Cyborg.plugin.name}/#{layout}"
       end
 
