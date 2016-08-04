@@ -3,9 +3,9 @@ module Cyborg
     module LayoutHelper
       def render_layout(*args, &block)
         options = args.last.is_a?(Hash) ? args.pop : {}
-        layout = args.first || 'application'
+        layout = args.first || 'default'
         yield if block_given?
-        render template: "layouts/#{Cyborg.plugin.name}/#{layout}"
+        render template: "layouts/#{layout}"
       end
 
       def javascripts(&block)

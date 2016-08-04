@@ -99,7 +99,7 @@ Cyborg.register(#{modulize(gem)}::Plugin, {
 end})
 
       # Add an a base layout
-      write_file("#{gem}/app/views/layouts/#{namespace}/application.html.erb", %Q{<!DOCTYPE html>
+      write_file("#{gem}/app/views/layouts/#{namespace}/default.html.erb", %Q{<!DOCTYPE html>
 <html>
 <head>
   <title>#{plugin_module}</title>
@@ -185,14 +185,13 @@ require "rails"
 # Pick the frameworks you want:
 require "action_controller/railtie"
 require "action_view/railtie"
-require 'bundler'
+require "sprockets/railtie"
 
 # Require the gems listed in Gemfile, including any gems
 # you've limited to :test, :development, or :production.
 Bundler.require(*Rails.groups)
 
 require '#{gem}'
-require 'sprockets/railtie'
 
 module Site
   class Application < Cyborg::Application
@@ -209,7 +208,7 @@ end})
   end
 end})
 
-      write_file(File.join(site_path, 'app/views/layouts/application.html.erb'), "<%= render_layout do %>\n<% end %>")
+      write_file(File.join(site_path, 'app/views/layouts/default.html.erb'), "<%= render_layout do %>\n<% end %>")
 
       write_file(File.join(site_path, 'app/views/docs/index.html.erb'), "<h1>#{plugin_module} Documentation</h1>")
     end
@@ -240,7 +239,7 @@ Gem::Specification.new do |spec|
   spec.files = Dir["{app,lib,public}/**/*", "LICENSE.txt", "README.md"]
   spec.require_paths = ["lib"]
 
-  spec.add_dependency "rails", "~> 4.2.6"
+  spec.add_dependency "rails", ">= 4"
   spec.add_runtime_dependency "cyborg"
 
   spec.add_development_dependency "bundler", "~> 1.12"
@@ -256,7 +255,7 @@ end
           type = 'update'
         else
           FileUtils.mkdir_p(File.dirname(path))
-          type ='create'
+          type = 'create'
         end
 
         File.open path, mode do |io|
