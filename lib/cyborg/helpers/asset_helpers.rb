@@ -47,11 +47,13 @@ module Cyborg
         %Q{<link rel="mask-icon" mask href="#{cyborg_asset_url(path)}" color="#{color}">}.html_safe
       end
 
-      def favicon_tag(source='favicon.ico', options={})
+      def favicon_tag(*args)
+        options = args.last.is_a?(Hash) ? args.pop : {}
+        source = args.first || 'favicon.ico'
         tag('link', {
           :rel  => 'shortcut icon',
           :type => 'image/x-icon',
-          :href => cyborg_asset_url(source)
+          :href => "/images/assets/#{Cyborg.plugin.name}/#{source}"
         }.merge!(options.symbolize_keys))
       end
     end
