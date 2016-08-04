@@ -208,8 +208,12 @@ end})
   end
 end})
 
-      write_file(File.join(site_path, 'app/views/layouts/default.html.erb'), "<%= render_layout do %>\n<% end %>")
+      layout = %Q{<%= render_layout '#{namespace}/default' do %>
+  <% stylesheets do %><%= stylesheet_link_tag('application')<% end %>
+  <% javascripts do %><%= javascript_include_tag('application')<% end %>
+<% end %>}
 
+      write_file(File.join(site_path, 'app/views/layouts/default.html.erb'), layout)
       write_file(File.join(site_path, 'app/views/docs/index.html.erb'), "<h1>#{plugin_module} Documentation</h1>")
     end
 
