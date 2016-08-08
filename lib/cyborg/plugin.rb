@@ -70,25 +70,15 @@ module Cyborg
     end
 
     def build(options={})
-      # TODO: be sure gem builds use a clean asset_path
-      #FileUtils.rm_rf(root) if Cyborg.production?
       FileUtils.mkdir_p(asset_path)
-      threads = []
       assets(options).each do |asset|
-        threads << Thread.new { asset.build }
+        asset.build
       end
 
-      threads
     end
 
     def watch(options)
       assets(options).map(&:watch)
-    end
-
-    def clean
-      FileUtils.rm_rf(Cyborg.rails_path('tmp/cache/'))
-      FileUtils.rm_rf('.sass-cache')
-      FileUtils.rm_rf(Cyborg.rails_path('.sass-cache'))
     end
 
     def config(options)
@@ -98,6 +88,7 @@ module Cyborg
         destination:   "public/",
         root:          @gem.full_gem_path,
         version:       @gem.version.to_s,
+        gem_name:      @gem.name,
         paths: {
           stylesheets: "app/assets/stylesheets/#{name}",
           javascripts: "app/assets/javascripts/#{name}",

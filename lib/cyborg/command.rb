@@ -32,6 +32,8 @@ module Cyborg
         from_root { gem_build }
       when 'gem:install'
         from_root { gem_install }
+      when 'gem:release'
+        from_root { gem_release }
       else
         puts "Command `#{options[:command]}` not recognized"
       end
@@ -46,18 +48,31 @@ module Cyborg
     end
 
     def gem_build
+      @production = true
+      FileUtils.rm_rf('public')
       dispatch(:build)
       system "bundle exec rake build"
     end
 
     def gem_install
+      @production = true
+      FileUtils.rm_rf('public')
       dispatch(:build)
       system "bundle exec rake install"
     end
 
     def gem_release
+      @production = true
+      FileUtils.rm_rf('public')
       dispatch(:build)
-      system "bundle exec rake release"
+
+      if key = ENV['RUBYGEMS_API_KEY']
+        gem = "#{Cyborg.plugin.gem_name}-#{Cyborg.plugin.version}.gem"
+        system "bundle exec rake build"
+        system "curl --data-binary @#{gem} -H 'Authorization:#{key}' https://rubygems.org/api/v1/gems"
+      else
+        system 'bundle exec rake release'
+      end
     end
 
     def require_rails
@@ -65,8 +80,9 @@ module Cyborg
     end
 
     def clean
-      require_rails
-      Cyborg.plugin.clean
+      FileUtils.rm_rf(Cyborg.rails_path('tmp/cache/'))
+      FileUtils.rm_rf('.sass-cache')
+      FileUtils.rm_rf(Cyborg.rails_path('.sass-cache'))
     end
 
     # Handles running threaded commands
@@ -81,7 +97,8 @@ module Cyborg
     def build(options={})
       puts Cyborg.production? ? 'Building for production…' : 'Building…'
       require_rails
-      @threads.concat Cyborg.plugin.build(options)
+      clean if Cyborg.production?
+      Cyborg.plugin.build(options)
     end
 
     # Watch assets for changes and build
