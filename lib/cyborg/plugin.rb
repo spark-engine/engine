@@ -89,6 +89,7 @@ module Cyborg
         root:          @gem.full_gem_path,
         version:       @gem.version.to_s,
         gem_name:      @gem.name,
+        gzip_in_production?: true,
         paths: {
           stylesheets: "app/assets/stylesheets/#{name}",
           javascripts: "app/assets/javascripts/#{name}",
