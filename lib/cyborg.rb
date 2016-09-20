@@ -15,7 +15,7 @@ module Cyborg
     ENV['CI'] || ENV['RAILS_ENV'] == 'production' || Command.production?
   end
 
-  def plugin
+  sef plugin
     @plugin
   end
 

@@ -27,7 +27,6 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency "autoprefixer-rails", "~> 6.4"
 
   spec.add_runtime_dependency "rails", ">= 4.2", "< 6"
-  spec.add_dependency 'rack-cors', "~> 0.4"
 
   spec.add_development_dependency "bundler", "~> 1.11"
   spec.add_development_dependency "rake", "~> 10.0"
