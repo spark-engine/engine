@@ -10,7 +10,6 @@ require "cyborg/assets"
 module Cyborg
   extend self
   attr_accessor :plugin
-  autoload :Application, "cyborg/middleware"
 
   def production?
     ENV['CI'] || ENV['RAILS_ENV'] == 'production' || Command.production?

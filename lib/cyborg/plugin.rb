@@ -36,6 +36,7 @@ module Cyborg
 
         initializer "#{name}.static_assets" do |app|
           app.middleware.insert_before(::ActionDispatch::Static, ::ActionDispatch::Static, "#{root}/public")
+          app.middleware.insert_before ::ActionDispatch::Static, Rack::Deflater
         end
       end)
     end
