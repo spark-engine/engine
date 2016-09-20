@@ -11,9 +11,7 @@ module Cyborg
         tags = ''
 
         stylesheet_url(args).each do |url|
-          tag = stylesheet_link_tag url, options
-          tag = tag.gsub(/\.css/i, ".css.gz") if request.accept_encoding =~ /gzip/i && Cyborg.gzip_assets?
-          tags += tag
+          tags += stylesheet_link_tag url, options
         end
 
         tags.html_safe
@@ -25,9 +23,7 @@ module Cyborg
 
         puts "searching for: #{javascript_url(args)}"
         javascript_url(args).each do |url|
-          tag = javascript_include_tag url, options
-          tag = tag.gsub(/\.js/i, ".js.gz") if request.accept_encoding =~ /gzip/i && Cyborg.gzip_assets?
-          tags += tag
+          tags += javascript_include_tag url, options
         end
 
         tags.html_safe

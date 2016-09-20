@@ -15,10 +15,6 @@ module Cyborg
     ENV['CI'] || ENV['RAILS_ENV'] == 'production' || Command.production?
   end
 
-  def gzip_assets?
-    production? && plugin.gzip_in_production?
-  end
-
   def plugin
     @plugin
   end

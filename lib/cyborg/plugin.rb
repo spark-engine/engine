@@ -90,7 +90,6 @@ module Cyborg
         root:          @gem.full_gem_path,
         version:       @gem.version.to_s,
         gem_name:      @gem.name,
-        gzip_in_production: true,
         paths: {
           stylesheets: "app/assets/stylesheets/#{name}",
           javascripts: "app/assets/javascripts/#{name}",
@@ -101,10 +100,6 @@ module Cyborg
       options.each do |k,v|
         set_instance(k.to_s,v) 
       end
-    end
-
-    def gzip_in_production?
-      @gzip_in_production
     end
 
     def expand_asset_paths
