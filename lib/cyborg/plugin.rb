@@ -34,8 +34,12 @@ module Cyborg
 
         engine_name Cyborg.plugin.name
 
+        require 'cyborg/middleware'
+
+        prefix = Rails.application.config.assets.prefix
+
         initializer "#{name}.static_assets" do |app|
-          app.middleware.insert_before(::ActionDispatch::Static, ::ActionDispatch::Static, "#{root}/public")
+          app.middleware.insert_before ::ActionDispatch::Static, Cyborg::StaticAssets, "#{root}/public", engine_name: Cyborg.plugin.name
           app.middleware.insert_before ::ActionDispatch::Static, Rack::Deflater
         end
       end)
@@ -82,10 +86,19 @@ module Cyborg
       assets(options).map(&:watch)
     end
 
+    def asset_root
+      asset_prefix = Rails.application.config.assets.prefix || '/assets'
+      File.join asset_prefix, name
+    end
+
+    def production_asset_root
+      @production_asset_root || asset_root
+    end
+
     def config(options)
+
       options = {
-        production_asset_root: "/assets/#{name}",
-        asset_root:    "/assets/#{name}",
+        production_asset_root: nil,
         destination:   "public/",
         root:          @gem.full_gem_path,
         version:       @gem.version.to_s,
@@ -98,7 +111,7 @@ module Cyborg
       }.merge(options)
 
       options.each do |k,v|
-        set_instance(k.to_s,v) 
+        set_instance(k.to_s,v)
       end
     end
 
@@ -110,17 +123,19 @@ module Cyborg
     end
 
     def asset_path(file=nil)
-      dest = File.join(destination, asset_root)
+      dest = destination
       dest = File.join(dest, file) if file
       dest
     end
 
     def asset_url(file=nil)
-      path = if Cyborg.production? 
+
+      path = if Cyborg.production?
         production_asset_root
       else
         asset_root
       end
+
       path = File.join(path, file) if file
       path
     end
@@ -130,23 +145,18 @@ module Cyborg
     def asset_ext(klass)
       klass.name.split('::').last.downcase
     end
-    
+
     # Find files based on class type and
     # return an array of Classes for each file
     def add_files(klass)
       ext = asset_ext klass
-      find_files(ext).map do |path| 
+      find_files(ext).map do |path|
         klass.new(self, path)
       end
     end
 
-    def glob(asset_ext)
-
-    end
-
     # Find files by class type and extension
     def find_files(ext)
-
       files = Dir[File.join(paths[ext.to_sym], asset_glob(ext))]
 
       # Filter out partials
@@ -162,10 +172,10 @@ module Cyborg
       end
     end
 
-
     # Convert configuration into instance variables
     def set_instance(name, value)
       instance_variable_set("@#{name}", value)
+
       instance_eval(<<-EOS, __FILE__, __LINE__ + 1)
         def #{name}
           @#{name}
