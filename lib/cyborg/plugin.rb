@@ -36,8 +36,6 @@ module Cyborg
 
         require 'cyborg/middleware'
 
-        prefix = Rails.application.config.assets.prefix
-
         initializer "#{name}.static_assets" do |app|
           app.middleware.insert_before ::ActionDispatch::Static, Cyborg::StaticAssets, "#{root}/public", engine_name: Cyborg.plugin.name
           app.middleware.insert_before ::ActionDispatch::Static, Rack::Deflater
