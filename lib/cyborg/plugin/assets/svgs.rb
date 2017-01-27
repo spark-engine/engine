@@ -30,8 +30,11 @@ module Cyborg
         return if find_files.empty?
 
         @svg.read_files
+
         if write_path = @svg.write
           puts "Built: #{write_path.sub(plugin.root+'/','')}"
+        else
+          puts "FAILED TO WRITE: #{write_path.sub(plugin.root+'/','')}"
         end
       end
     end
