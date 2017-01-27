@@ -1,4 +1,5 @@
 require 'fileutils'
+require 'pry-byebug'
 
 module Cyborg
   class Scaffold
@@ -16,8 +17,6 @@ module Cyborg
 
       @gemspec_path = new_gem
       @path = File.expand_path(File.dirname(@gemspec_path))
-
-      fix_gemspec_files
 
       @spec = Gem::Specification.load(@gemspec_path)
 
@@ -40,12 +39,6 @@ module Cyborg
       Dir.chdir path do
         NPM.setup
       end
-    end
-
-    # First remove scaffold spec.files (which rely on git) to avoid errors
-    # when loading the spec
-    def fix_gemspec_files
-      write_file(gemspec_path, File.read(gemspec_path).gsub(/^.+spec\.files.+$/,''))
     end
 
     def bootstrap_gem
