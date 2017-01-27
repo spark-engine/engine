@@ -25,7 +25,11 @@ module Cyborg
               compress(destination(file))
             end
 
-            puts build_msg(file)
+            if File.exist? destination(file)
+              puts build_msg(file)
+            else
+              puts "FAILED TO WRITE: #{file}."
+            end
           end
         else
           abort "JS BUILD FAILED: browserifyinc NPM module not found.\n" << "Please add browserifyinc to your package.json and run `npm install`"

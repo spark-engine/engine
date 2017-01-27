@@ -25,7 +25,11 @@ module Cyborg
             build_sass(file)
           end
 
-          puts build_msg(file)
+          if File.exist? destination(file)
+            puts build_msg(file)
+          else
+            puts "FAILED TO WRITE: #{file}"
+          end
         end
       end
 
@@ -48,7 +52,6 @@ module Cyborg
 
         compress(dest)
       end
-
 
       # Convert extension
       def versioned(file)
