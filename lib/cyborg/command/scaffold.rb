@@ -1,5 +1,4 @@
 require 'fileutils'
-require 'pry-byebug'
 
 module Cyborg
   class Scaffold
