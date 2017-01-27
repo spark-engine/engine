@@ -32,14 +32,18 @@ module Cyborg
         end
       end
 
+      def npm_path( cmd )
+        File.join Cyborg.gem_path, "node_modules/.bin", cmd
+      end
+
       def build_command(file)
         dest = destination(file).sub(/\.js$/,'')
         options = " -t babelify --standalone #{plugin.name} -o #{dest}.js -d"
 
         cmd = if Cyborg.production?
-          "browserify #{file} #{options}"
+          npm_path "browserify #{file} #{options}"
         else
-          "browserifyinc --cachefile #{cache_file(File.basename(dest))} #{file} #{options}"
+          npm_path "browserifyinc --cachefile #{cache_file(File.basename(dest))} #{file} #{options}"
         end
 
         if Cyborg.production?
