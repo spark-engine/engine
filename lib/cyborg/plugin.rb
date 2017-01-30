@@ -89,8 +89,8 @@ module Cyborg
       File.join asset_prefix, name
     end
 
-    def production_asset_root
-      @production_asset_root || asset_root
+    def production_root
+      @production_asset_root ||= asset_root
     end
 
     def config(options)
@@ -128,8 +128,8 @@ module Cyborg
 
     def asset_url(file=nil)
 
-      path = if Cyborg.production?
-        production_asset_root
+      path = if Cyborg.production? || ENV[name.upcase + '_FORCE_LOCAL_ASSETS']
+        production_root
       else
         asset_root
       end
