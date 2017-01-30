@@ -51,7 +51,7 @@ module Cyborg
         tag('link', {
           :rel  => 'shortcut icon',
           :type => 'image/x-icon',
-          :href => "/images/assets/#{Cyborg.plugin.name}/#{source}"
+          :href => cyborg_asset_url(source),
         }.merge!(options.symbolize_keys))
       end
     end
