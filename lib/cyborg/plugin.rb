@@ -128,7 +128,7 @@ module Cyborg
 
     def asset_url(file=nil)
 
-      path = if Cyborg.production? || ENV[name.upcase + '_FORCE_LOCAL_ASSETS']
+      path = if Cyborg.production? && !ENV[name.upcase + '_FORCE_LOCAL_ASSETS']
         production_root
       else
         asset_root
