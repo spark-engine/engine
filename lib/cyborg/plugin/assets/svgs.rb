@@ -10,7 +10,7 @@ module Cyborg
         return if find_files.empty?
 
         @svg = Esvg.new({
-          config_file: File.join(plugin.root, 'esvg.yml'),
+          config_file: File.join(plugin.root, 'config', 'esvg.yml'),
           path: path,
           tmp_path: Cyborg.rails_path('tmp/cache/assets'),
           js_path: File.join(plugin.paths[:javascripts], '_svg.js'),

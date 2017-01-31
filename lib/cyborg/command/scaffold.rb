@@ -232,7 +232,7 @@ Gem::Specification.new do |spec|
   spec.description = "Description of your gem (usually longer)."
   spec.license     = "#{spec.license}"
 
-  spec.files = Dir["{app,lib,public}/**/*", "LICENSE.txt", "README.md"]
+  spec.files = Dir["{app,lib,public,config}/**/*", "LICENSE.txt", "README.md"]
   spec.require_paths = ["lib"]
 
   spec.add_dependency "rails", ">= 4"
