@@ -19,20 +19,20 @@ module Cyborg
 
         if Open3.capture3("npm ls browserify-incremental")[1].empty?
           files.each do |file|
-            system build_command(file)
+            begin
+              system build_command(file)
+              compress(destination(file)) if Cyborg.production?
 
-            if Cyborg.production?
-              compress(destination(file))
-            end
+              puts build_success(file)
 
-            if File.exist? destination(file)
-              puts build_msg(file)
-            else
-              puts "FAILED TO WRITE: #{file}."
+            rescue => bang
+              build_failure file
+              log_error bang
             end
           end
         else
-          abort "JS BUILD FAILED: browserifyinc NPM module not found.\n" << "Please add browserifyinc to your package.json and run `npm install`"
+          log_error "JS BUILD FAILED: browserifyinc NPM module not found.\n" << "Please add browserifyinc to your package.json and run `npm install`"
+          abort
         end
       end
 

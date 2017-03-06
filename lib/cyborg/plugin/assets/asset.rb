@@ -40,8 +40,22 @@ module Cyborg
         File.basename(path).sub(/(\.\w+)$/, '-'+plugin.version+'\1')
       end
 
-      def build_msg(file)
-        "Built: #{destination(file).sub(plugin.root+'/','')}"
+      def build_success(file)
+        log_success "Built: #{destination(file).sub(plugin.root+'/','')}"
+      end
+
+      def build_failure(file)
+        msg = "FAILED TO BUILD"
+        msg += ": #{destination(file).sub(plugin.root+'/','')}" if file
+        log_error msg
+      end
+
+      def log_success( msg )
+        STDOUT.print msg.to_s.strip.colorize(:green)
+      end
+
+      def log_error( msg )
+        STDERR.puts msg.to_s.strip.colorize(:red)
       end
 
       # Determine if an NPM module is installed by checking paths with `npm ls`
@@ -124,7 +138,6 @@ module Cyborg
 
         File.utime(mtime, mtime, gz_file)
       end
-
     end
   end
 end

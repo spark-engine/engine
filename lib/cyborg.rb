@@ -1,6 +1,6 @@
 require "open3"
 require "json"
-require 'colorize'
+require "colorize"
 
 require "cyborg/command"
 require "cyborg/version"

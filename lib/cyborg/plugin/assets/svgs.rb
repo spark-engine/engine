@@ -29,12 +29,17 @@ module Cyborg
       def build
         return if find_files.empty?
 
-        @svg.read_files
+        begin
+          @svg.read_files
 
-        if write_path = @svg.write
-          puts "Built: #{write_path.sub(plugin.root+'/','')}"
-        else
-          puts "FAILED TO WRITE: #{write_path.sub(plugin.root+'/','')}"
+          if file = @svg.write
+            puts build_success(file)
+          else
+            log_error "FAILED TO BUILD SVGs"
+          end
+        rescue => bang
+          log_error "FAILED TO BUILD SVGs"
+          log_error bang
         end
       end
     end

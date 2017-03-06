@@ -26,10 +26,10 @@ module Cyborg
               build_sass(file)
             end
 
-            puts build_msg(file)
-          rescue  => bang
-            STDERR.puts "FAILED TO WRITE: #{destination(file).sub(plugin.root+'/','')}"
-            STDERR.puts bang
+            puts build_success(file)
+          rescue => bang
+            build_failure file
+            log_error bang
           end
         end
       end
