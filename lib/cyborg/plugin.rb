@@ -104,6 +104,7 @@ module Cyborg
         paths: {
           stylesheets: "app/assets/stylesheets/#{name}",
           javascripts: "app/assets/javascripts/#{name}",
+          images:      "app/assets/images/#{name}",
           svgs:        "app/assets/svgs/#{name}",
         }
       }.merge(options)
