@@ -37,9 +37,19 @@ module Cyborg
           else
             log_error "FAILED TO BUILD SVGs"
           end
-        rescue => bang
-          log_error "FAILED TO BUILD SVGs"
-          log_error bang
+        rescue Exception => e
+          log_error "\nFAILED TO BUILD SVGs"
+
+          if e.backtrace && e.backtrace.is_a?(Array)
+            log_error "Error in file: #{local_path(e.backtrace.shift)}"
+
+            e.backtrace.each do |line|
+              log_error local_path(line)
+            end
+          end
+
+          log_error("  #{e.message}\n") if e.message
+
         end
       end
     end

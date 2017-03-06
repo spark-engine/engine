@@ -27,9 +27,15 @@ module Cyborg
             end
 
             puts build_success(file)
-          rescue => bang
+
+          rescue Exception => e
             build_failure file
-            log_error bang
+
+            if e.backtrace.is_a? Array
+              log_error "Error in file: #{local_path(e.backtrace[0])}"
+            end
+
+          log_error "  #{e.message}\n" if e.message
           end
         end
       end

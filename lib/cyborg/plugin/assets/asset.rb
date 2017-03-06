@@ -40,22 +40,26 @@ module Cyborg
         File.basename(path).sub(/(\.\w+)$/, '-'+plugin.version+'\1')
       end
 
+      def local_path(file)
+        destination(file).sub(plugin.root+'/','')
+      end
+
       def build_success(file)
-        log_success "Built: #{destination(file).sub(plugin.root+'/','')}"
+        log_success "Built: #{local_path(file)}"
       end
 
       def build_failure(file)
-        msg = "FAILED TO BUILD"
-        msg += ": #{destination(file).sub(plugin.root+'/','')}" if file
+        msg = "\nFAILED TO BUILD"
+        msg += ": #{local_path(file)}" if file
         log_error msg
       end
 
       def log_success( msg )
-        STDOUT.print msg.to_s.strip.colorize(:green)
+        STDOUT.puts msg.to_s.colorize(:green)
       end
 
       def log_error( msg )
-        STDERR.puts msg.to_s.strip.colorize(:red)
+        STDERR.puts msg.to_s.colorize(:red)
       end
 
       # Determine if an NPM module is installed by checking paths with `npm ls`
@@ -95,7 +99,7 @@ module Cyborg
       end
 
       def watch
-        puts "Watching for changes to #{base.sub(plugin.root+'/', '')}..."
+        puts "Watching for changes to #{base.sub(plugin.root+'/', '')}...".colorize(:light_yellow)
 
         Thread.new {
           listener = Listen.to(base) do |modified, added, removed|
@@ -108,9 +112,9 @@ module Cyborg
       end
 
       def change(modified, added, removed)
-        puts "Added: #{file_event(added)}"       unless added.empty?
-        puts "Removed: #{file_event(removed)}"   unless removed.empty?
-        puts "Modified: #{file_event(modified)}" unless modified.empty?
+        puts "Added: #{file_event(added)}".colorize(:light_green)       unless added.empty?
+        puts "Removed: #{file_event(removed)}".colorize(:light_red)   unless removed.empty?
+        puts "Modified: #{file_event(modified)}".colorize(:light_yellow) unless modified.empty?
 
         build
       end

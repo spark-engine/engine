@@ -19,15 +19,31 @@ module Cyborg
 
         if Open3.capture3("npm ls browserify-incremental")[1].empty?
           files.each do |file|
-            begin
-              system build_command(file)
-              compress(destination(file)) if Cyborg.production?
 
-              puts build_success(file)
+            dest = destination(file)
 
-            rescue => bang
+            FileUtils.rm dest
+
+            response = Open3.capture3(build_command(file))
+
+            if File.exist?(dest) && !File.read(dest).strip.empty?
+              compress(dest) if Cyborg.production?
+              build_success file
+            else
               build_failure file
-              log_error bang
+
+              response = response.map { |l| l.to_s.split("\n") }.flatten
+
+              response.each do |line|
+                if !line.empty? &&
+                   !line.match(/node_modules/i) &&
+                   !line.match(/pid (\d+?) exit/i) &&
+                   !line.match(/\[BABEL\] Note:/i)
+                  log_error line.gsub(plugin.root+'/','')
+                end
+              end
+
+              puts ""
             end
           end
         else
