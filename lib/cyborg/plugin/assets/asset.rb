@@ -110,6 +110,7 @@ module Cyborg
 
       def compress(file)
         return unless Cyborg.production?
+
         mtime = File.mtime(file)
         gz_file = "#{file}.gz"
         return if File.exist?(gz_file) && File.mtime(gz_file) >= mtime

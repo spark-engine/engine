@@ -19,16 +19,17 @@ module Cyborg
 
         files.each do |file|
 
-          if File.extname(file).match(/\.css/)
-            build_css(file)
-          elsif File.extname(file).match(/\.s[ca]ss/)
-            build_sass(file)
-          end
+          begin
+            if File.extname(file).match(/\.css/)
+              build_css(file)
+            elsif File.extname(file).match(/\.s[ca]ss/)
+              build_sass(file)
+            end
 
-          if File.exist? destination(file)
             puts build_msg(file)
-          else
-            puts "FAILED TO WRITE: #{file}"
+          rescue  => bang
+            STDERR.puts "FAILED TO WRITE: #{destination(file).sub(plugin.root+'/','')}"
+            STDERR.puts bang
           end
         end
       end
@@ -42,7 +43,6 @@ module Cyborg
 
       def build_sass(file)
         style = Cyborg.production? ? "compressed" : 'nested'
-
         dest = destination(file)
 
         css = Sass.compile_file(file, style: style)
