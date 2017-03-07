@@ -22,10 +22,11 @@ module Cyborg
 
             dest = destination(file)
 
-            FileUtils.rm dest
+            FileUtils.rm(dest) if File.exists?(dest)
 
             response = Open3.capture3(build_command(file))
 
+            # If the file exists and is not empty (a failed build is empty)
             if File.exist?(dest) && !File.read(dest).strip.empty?
               compress(dest) if Cyborg.production?
               build_success file
@@ -35,10 +36,10 @@ module Cyborg
               response = response.map { |l| l.to_s.split("\n") }.flatten
 
               response.each do |line|
-                if !line.empty? &&
-                   !line.match(/node_modules/i) &&
-                   !line.match(/pid (\d+?) exit/i) &&
-                   !line.match(/\[BABEL\] Note:/i)
+                if !line.empty? &&                      # Don't print empty lines
+                   !line.match(/node_modules/i) &&      # Ignore stack traces from installed modules
+                   !line.match(/pid (\d+?) exit/i) &&   # Ignore pid exit stack line
+                   !line.match(/\[BABEL\] Note:/i)      # Notices from Bable are noisy
                   log_error line.gsub(plugin.root+'/','')
                 end
               end
