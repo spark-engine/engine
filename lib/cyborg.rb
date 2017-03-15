@@ -16,6 +16,10 @@ module Cyborg
     ENV['CI'] || ENV['RAILS_ENV'] == 'production' || Command.production?
   end
 
+  def rails5?
+   Gem::Version.new(Rails.version) >= Gem::Version.new('5') 
+  end
+
   def plugin
     @plugin
   end

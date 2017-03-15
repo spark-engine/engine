@@ -1,4 +1,5 @@
 require 'rack/cors'
+require 'action_dispatch/middleware/static'
 
 module Cyborg
   class Application < Rails::Application
@@ -19,7 +20,7 @@ module Cyborg
   class StaticAssets
 
     # Rails 5 middleware patch
-    if Gem::Version.new(Rails.version) >= Gem::Version.new('5')
+    if Cyborg.rails5?
 
       def initialize(app, path, index: 'index', headers: {}, engine_name: nil)
         @app = app

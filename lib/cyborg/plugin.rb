@@ -37,8 +37,10 @@ module Cyborg
         require 'cyborg/middleware'
 
         initializer "#{name}.static_assets" do |app|
-          app.middleware.insert_before ::ActionDispatch::Static, Cyborg::StaticAssets, "#{root}/public", engine_name: Cyborg.plugin.name
-          app.middleware.insert_before ::ActionDispatch::Static, Rack::Deflater
+          if !Cyborg.rails5? || app.config.public_file_server.enabled
+            app.middleware.insert_after ::ActionDispatch::Static, Cyborg::StaticAssets, "#{root}/public", engine_name: Cyborg.plugin.name
+            app.middleware.insert_before ::ActionDispatch::Static, Rack::Deflater
+          end
         end
       end)
     end
