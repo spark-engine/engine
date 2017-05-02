@@ -7,15 +7,14 @@ module Cyborg
         @plugin = plugin
         @base = path
 
-        return if find_files.empty?
-
         @svg = Esvg.new({
           config_file: File.join(plugin.root, 'config', 'esvg.yml'),
           path: path,
           tmp_path: Cyborg.rails_path('tmp/cache/assets'),
-          js_path: File.join(plugin.paths[:javascripts], '_svg.js'),
+          js_path: File.join(plugin.paths[:javascripts], '_icons.js'),
           optimize: true
         })
+
       end
 
       def icons
@@ -26,14 +25,19 @@ module Cyborg
         "svg"
       end
 
+      def local_path(path)
+        File.expand_path(path).sub(plugin.paths[:javascripts], '').sub(/^\//,'')
+      end
+
       def build
-        return if find_files.empty?
 
         begin
           @svg.read_files
 
-          if file = @svg.write
-            puts build_success(file)
+          return if @svg.files.empty?
+
+          if files = @svg.write
+            files.each { |file| puts build_success(file) }
           else
             log_error "FAILED TO BUILD SVGs"
           end
