@@ -61,17 +61,12 @@ module Cyborg
         dest = destination(file).sub(/\.js$/,'')
         options = " -t babelify --standalone #{plugin.name} -o #{dest}.js -d"
 
-        cmd = if Cyborg.production?
-          npm_path "browserify #{file} #{options}"
+        if Cyborg.production?
+          npm_path "browserify #{file} #{options} -p [ minifyify --map #{url(file).sub(/\.js$/,'')}.map.json --output #{dest}.map.json ]"
         else
           npm_path "browserifyinc --cachefile #{cache_file(File.basename(dest))} #{file} #{options}"
         end
 
-        if Cyborg.production?
-          cmd += " -p [ minifyify --map #{url(file).sub(/\.js$/,'')}.map.json --output #{dest}.map.json ]"
-        end
-
-        cmd
       end
     end
   end

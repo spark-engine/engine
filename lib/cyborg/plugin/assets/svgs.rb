@@ -28,7 +28,11 @@ module Cyborg
       end
 
       def local_path(path)
-        File.expand_path(path).sub(plugin.paths[:javascripts], '').sub(/^\//,'')
+        path = File.expand_path(path)
+
+        # Strip all irrelevant sections of the path
+        path.sub(plugin.paths[:javascripts]+'/', '') # written to assets dir
+            .sub(plugin.root+'/','')                 # writtent to public dir
       end
 
       def build
@@ -39,7 +43,12 @@ module Cyborg
           return if @svg.files.empty?
 
           if files = @svg.write
-            files.each { |file| puts build_success(file) }
+            files.each do |file|
+              if file.start_with?(plugin.destination)
+                compress(file)
+              end
+              puts build_success(file)
+            end
           else
             log_error "FAILED TO BUILD SVGs"
           end
