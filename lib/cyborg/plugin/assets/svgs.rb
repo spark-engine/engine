@@ -12,6 +12,8 @@ module Cyborg
           path: path,
           tmp_path: Cyborg.rails_path('tmp/cache/assets'),
           js_path: File.join(plugin.paths[:javascripts], '_icons.js'),
+          js_build_version: plugin.version,
+          js_build_dir: plugin.destination,
           optimize: true
         })
 
