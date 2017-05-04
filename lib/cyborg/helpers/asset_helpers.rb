@@ -21,7 +21,6 @@ module Cyborg
         options = args.last.is_a?(Hash) ? args.pop : {}
         tags = ''
 
-        puts "searching for: #{javascript_url(args)}"
         javascript_url(args).each do |url|
           tags += javascript_include_tag url, options
         end

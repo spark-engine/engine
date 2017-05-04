@@ -35,6 +35,10 @@ module Cyborg
             .sub(plugin.root+'/','')                 # writtent to public dir
       end
 
+      def build_paths
+        @svg.build_paths.map { |file| file.sub("-#{plugin.version}",'') }
+      end
+
       def build
 
         begin

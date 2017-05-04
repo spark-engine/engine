@@ -22,17 +22,11 @@ module Cyborg
         end
       end
 
-      def filter_files(names=nil)
-        names = [names].flatten.compact.map do |n|
-          File.basename(n).sub(/(\..+)$/,'')
-        end
+      def filter_files(names)
 
-        if !names.empty?
-          find_files.select do |f|
-            names.include? File.basename(f).sub(/(\..+)$/,'')
-          end
-        else
-          find_files
+        # Filter names based on asset file locations
+        find_files.select do |f|
+          names.include? File.basename(f).sub(/(\..+)$/,'')
         end
       end
 
@@ -95,7 +89,21 @@ module Cyborg
       end
 
       def urls(names=nil)
-        filter_files(names).map{ |file| url(file) }
+        # If names are passed, look at the basename minus
+        # the extension as build files may have
+        # different extensions than sources
+        names = [names].flatten.compact.map do |n|
+          File.basename(n).sub(/(\..+)$/,'')
+        end
+
+        # Return all asset urls if none were specifically chosen
+        if names.empty?
+          find_files.map{ |file| url(file) }
+
+        # Filter files based on name
+        else
+          filter_files(names).map{ |file| url(file) }
+        end
       end
 
       def watch

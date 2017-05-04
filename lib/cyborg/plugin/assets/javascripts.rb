@@ -13,6 +13,13 @@ module Cyborg
         Cyborg.rails_path("tmp/cache/assets/.browserify-cache-#{name}.json")
       end
 
+      # Find all asset files matching array of names
+      def filter_files(names)
+        [find_files, plugin.svgs.build_paths].flatten.select do |f|
+          names.include? File.basename(f).sub(/(\..+)$/,'')
+        end
+      end
+
       def build
         files = find_files
         FileUtils.mkdir_p(File.dirname(cache_file)) if !files.empty?
