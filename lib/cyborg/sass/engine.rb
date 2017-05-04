@@ -12,8 +12,10 @@ class Sass::Engine
     yaml_importer = self.options[:load_paths].find {|lp| lp.is_a?(Cyborg::Importer) }
 
     unless yaml_importer
-      root = File.dirname(options[:filename] || ".")
+      root        = File.dirname(options[:filename] || ".")
+      plugin_root = Cyborg.plugin.stylesheets.base
       self.options[:load_paths] << Cyborg::Importer.new(root)
+      self.options[:load_paths] << Cyborg::Importer.new(plugin_root)
     end
   end
 end

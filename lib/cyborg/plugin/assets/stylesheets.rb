@@ -12,7 +12,7 @@ module Cyborg
       def asset_tag(*args)
         stylesheet_link_tag(args)
       end
-      
+
       def build(ext=nil)
         files = find_files
         files = files.reject {|f| !f.match(/\.#{ext}/) } if ext
@@ -67,7 +67,8 @@ module Cyborg
 
           Dir[File.join(base, "**/*.yml")].each do |file|
             key = file.sub(base+"/", '').sub(/^_/,'').sub('.yml','')
-            data[key] = YAML.load(IO.read(file))
+
+            data[key] = SassParser.parse(file)
           end
 
           @data = data if Cyborg.production?

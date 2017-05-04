@@ -54,8 +54,12 @@ module Cyborg
         }.merge!(options.symbolize_keys))
       end
 
-      def sass_data(key)
-        Cyborg.plugin.stylesheets.data[key]
+      def sass_data(key=nil)
+        if key
+          Cyborg.plugin.stylesheets.data[key]
+        else
+          Cyborg.plugin.stylesheets.data
+        end
       end
     end
   end

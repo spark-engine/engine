@@ -131,7 +131,7 @@ module Cyborg
         list = files.map { |f| f.sub(base+'/', '') }.join("  \n")
         list = "  \n#{files}" if 1 < files.size
 
-        list 
+        list
       end
 
       def compress(file)
