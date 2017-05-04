@@ -120,8 +120,8 @@ module Cyborg
       end
 
       def change(modified, added, removed)
-        puts "Added: #{file_event(added)}".colorize(:light_green)       unless added.empty?
-        puts "Removed: #{file_event(removed)}".colorize(:light_red)   unless removed.empty?
+        puts "Added: #{file_event(added)}".colorize(:light_green)        unless added.empty?
+        puts "Removed: #{file_event(removed)}".colorize(:light_red)      unless removed.empty?
         puts "Modified: #{file_event(modified)}".colorize(:light_yellow) unless modified.empty?
 
         build

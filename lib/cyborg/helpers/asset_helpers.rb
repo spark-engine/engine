@@ -53,6 +53,10 @@ module Cyborg
           :href => cyborg_asset_url(source)
         }.merge!(options.symbolize_keys))
       end
+
+      def sass_data(key)
+        Cyborg.plugin.stylesheets.data[key]
+      end
     end
   end
 end

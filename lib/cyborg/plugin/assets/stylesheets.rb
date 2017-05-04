@@ -59,6 +59,22 @@ module Cyborg
         compress(dest)
       end
 
+      def data
+        if @data
+          @data
+        else
+          data = {}
+
+          Dir[File.join(base, "**/*.yml")].each do |file|
+            key = file.sub(base+"/", '').sub(/^_/,'').sub('.yml','')
+            data[key] = YAML.load(IO.read(file))
+          end
+
+          @data = data if Cyborg.production?
+          data
+        end
+      end
+
       # Convert extension
       def versioned(file)
         super(file.sub(/(\.css)?\.s[ca]ss$/i,'.css'))

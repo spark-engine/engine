@@ -6,6 +6,8 @@ require "cyborg/command"
 require "cyborg/version"
 require "cyborg/plugin"
 require "cyborg/assets"
+require "cyborg/sass/engine"
+require "cyborg/sass/importer"
 
 module Cyborg
   extend self
