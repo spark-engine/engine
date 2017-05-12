@@ -56,26 +56,27 @@ module Cyborg
         STDERR.puts msg.to_s.colorize(:red)
       end
 
-      # Determine if an NPM module is installed by checking paths with `npm ls`
+      # Determine if an NPM module is installed by checking paths with `npm bin`
       # Returns path to binary if installed
-      def find_node_module(cmd)
-        response = Open3.capture3("npm ls #{cmd}")
+    def find_node_module(cmd)
+      require 'open3'
+      (@modules ||= {})[cmd] ||= begin
 
-        # Look in local `./node_modules` path.
-        # Be sure stderr is empty (the second argument returned by capture3)
-        if response[1].empty?
-          "$(npm bin)/#{cmd}"
-
-        # Check global module path
-        elsif Open3.capture3("npm ls -g #{cmd}")[1].empty?
-          cmd
+        local = "$(npm bin)/#{cmd}"
+        global = "$(npm -g bin)/#{cmd}"
+        
+        if Open3.capture3(local)[2].success?
+          local
+        elsif Open3.capture3(global)[2].success?
+          global
         end
+
       end
+    end
 
       def npm_command(cmd)
         cmd = cmd.split(' ')
-        path = find_node_module(cmd.shift)
-        if path
+        if path = find_node_module(cmd.shift)
           system "#{path} #{cmd.join(' ')}"
         end
       end

@@ -3,18 +3,23 @@ module Cyborg
     class Svgs < AssetType
 
       def initialize(plugin, path)
-        require 'esvg'
+
+        require 'cyborg/esvg'
+
         @plugin = plugin
         @base = path
 
         @svg = Esvg::SVG.new({
           config_file: File.join(plugin.root, 'config', 'esvg.yml'),
-          path: path,
+          source: path,
+          assets: plugin.paths[:javascripts],
+          version: plugin.version,
+          build: plugin.destination,
           tmp_path: Cyborg.rails_path('tmp/cache/assets'),
-          js_path: File.join(plugin.paths[:javascripts], '_icons.js'),
-          js_build_version: plugin.version,
-          js_build_dir: plugin.destination,
-          optimize: true
+          filename: '_icons.js',
+          compress: Cyborg.production?,
+          optimize: true,
+          print: false
         })
 
       end
@@ -35,6 +40,10 @@ module Cyborg
             .sub(plugin.root+'/','')                 # writtent to public dir
       end
 
+      def use(*args)
+        icons.use(*args)
+      end
+
       def build_paths
         @svg.build_paths.map { |file| file.sub("-#{plugin.version}",'') }
       end
@@ -44,13 +53,10 @@ module Cyborg
         begin
           @svg.read_files
 
-          return if @svg.files.empty?
+          return if @svg.svgs.empty?
 
-          if files = @svg.write
+          if files = @svg.build
             files.each do |file|
-              if file.start_with?(plugin.destination)
-                compress(file)
-              end
               puts build_success(file)
             end
           else
