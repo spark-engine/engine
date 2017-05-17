@@ -15,7 +15,7 @@ module Cyborg
           assets: plugin.paths[:javascripts],
           version: plugin.version,
           build: plugin.destination,
-          tmp_path: Cyborg.rails_path('tmp/cache/assets'),
+          temp: Cyborg.rails_path('tmp/cache/assets'),
           filename: '_icons.js',
           compress: Cyborg.production?,
           optimize: true,
