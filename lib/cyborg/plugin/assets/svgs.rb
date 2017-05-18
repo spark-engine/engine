@@ -9,9 +9,12 @@ module Cyborg
         @plugin = plugin
         @base = path
 
-        @svg = Esvg::SVG.new({
+      end
+
+      def icons
+        @svg ||= Esvg::SVG.new({
           config_file: File.join(plugin.root, 'config', 'esvg.yml'),
-          source: path,
+          source: @base,
           assets: plugin.paths[:javascripts],
           version: plugin.version,
           build: plugin.destination,
@@ -22,10 +25,6 @@ module Cyborg
           print: false
         })
 
-      end
-
-      def icons
-        @svg
       end
 
       def ext
@@ -45,17 +44,17 @@ module Cyborg
       end
 
       def build_paths
-        @svg.build_paths.map { |file| file.sub("-#{plugin.version}",'') }
+        icons.build_paths.map { |file| file.sub("-#{plugin.version}",'') }
       end
 
       def build
 
         begin
-          @svg.read_files
+          icons.read_files
 
-          return if @svg.svgs.empty?
+          return if icons.svgs.empty?
 
-          if files = @svg.build
+          if files = icons.build
             files.each do |file|
               puts build_success(file)
             end
