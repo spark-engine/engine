@@ -11,7 +11,7 @@ module Cyborg
 
       end
 
-      def icons
+      def esvg
         @svg ||= Esvg::SVG.new({
           config_file: File.join(plugin.root, 'config', 'esvg.yml'),
           source: @base,
@@ -40,21 +40,21 @@ module Cyborg
       end
 
       def use(*args)
-        icons.use(*args)
+        esvg.use(*args)
       end
 
       def build_paths
-        icons.build_paths.map { |file| file.sub("-#{plugin.version}",'') }
+        esvg.build_paths.map { |file| file.sub("-#{plugin.version}",'') }
       end
 
       def build
 
         begin
-          icons.read_files
+          esvg.read_files
 
-          return if icons.svgs.empty?
+          return if esvg.svgs.empty?
 
-          if files = icons.build
+          if files = esvg.build
             files.each do |file|
               puts build_success(file)
             end
