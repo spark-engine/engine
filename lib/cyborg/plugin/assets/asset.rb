@@ -6,6 +6,8 @@ module Cyborg
       def initialize(plugin, base)
         @base = base
         @plugin = plugin
+        @throttle = 4
+        @last_build = nil
       end
 
       def find_files
@@ -125,11 +127,14 @@ module Cyborg
         puts "Removed: #{file_event(removed)}".colorize(:light_red)      unless removed.empty?
         puts "Modified: #{file_event(modified)}".colorize(:light_yellow) unless modified.empty?
 
-        build
+        if !@last_build.nil? || Time.now.to_i - @last_build > @throttle
+          build
+          @last_build = Time.now.to_i
+        end
       end
 
       def file_event(files)
-        list = files.map { |f| f.sub(base+'/', '') }.join("  \n")
+        list = files.flat_map { |f| f.sub(base+'/', '') }.join("  \n")
         list = "  \n#{files}" if 1 < files.size
 
         list

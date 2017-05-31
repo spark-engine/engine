@@ -4,15 +4,16 @@ module Cyborg
 
       def initialize(plugin, path)
 
-        require 'cyborg/esvg'
+        require 'esvg'
 
         @plugin = plugin
         @base = path
+        @svg = esvg
 
       end
 
       def esvg
-        @svg ||= Esvg::SVG.new({
+        @svg || Esvg.new({
           config_file: File.join(plugin.root, 'config', 'esvg.yml'),
           source: @base,
           assets: plugin.paths[:javascripts],
@@ -24,7 +25,6 @@ module Cyborg
           optimize: true,
           print: false
         })
-
       end
 
       def ext
@@ -48,11 +48,10 @@ module Cyborg
       end
 
       def build
-
         begin
-          esvg.read_files
+          esvg.load_files
 
-          return if esvg.svgs.empty?
+          return if esvg.symbols.empty?
 
           if files = esvg.build
             files.each do |file|
