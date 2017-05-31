@@ -6,8 +6,6 @@ module Cyborg
       def initialize(plugin, base)
         @base = base
         @plugin = plugin
-        @throttle = 4
-        @last_build = nil
       end
 
       def find_files
@@ -110,6 +108,10 @@ module Cyborg
       end
 
       def watch
+
+        @throttle = 4
+        @last_build = 0
+        
         puts "Watching for changes to #{base.sub(plugin.root+'/', '')}...".colorize(:light_yellow)
 
         Thread.new {
@@ -123,14 +125,14 @@ module Cyborg
       end
 
       def change(modified, added, removed)
+        return if (Time.now.to_i - @last_build) < @throttle
+
         puts "Added: #{file_event(added)}".colorize(:light_green)        unless added.empty?
         puts "Removed: #{file_event(removed)}".colorize(:light_red)      unless removed.empty?
         puts "Modified: #{file_event(modified)}".colorize(:light_yellow) unless modified.empty?
 
-        if !@last_build.nil? || Time.now.to_i - @last_build > @throttle
-          build
-          @last_build = Time.now.to_i
-        end
+        build
+        @last_build = Time.now.to_i
       end
 
       def file_event(files)

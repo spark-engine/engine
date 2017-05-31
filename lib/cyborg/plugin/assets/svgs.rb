@@ -9,7 +9,6 @@ module Cyborg
         @plugin = plugin
         @base = path
         @svg = esvg
-
       end
 
       def esvg
