@@ -60,6 +60,7 @@ OptionParser.new do |opts|
     end
 
     opts.on("-P", "--production", "Build assets as with production mode.") do |val|
+      ENV['RAILS_ENV'] = 'production'
       options[:production] = true
     end
 
