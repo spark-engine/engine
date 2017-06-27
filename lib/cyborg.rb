@@ -8,6 +8,7 @@ require "cyborg/plugin"
 require "cyborg/assets"
 require "cyborg/sass/engine"
 require "cyborg/sass/importer"
+require "cyborg/config_data"
 
 module Cyborg
   extend self
@@ -24,6 +25,10 @@ module Cyborg
 
   def plugin
     @plugin
+  end
+
+  def config_data
+    Cyborg::ConfigData.read(Cyborg.plugin.root, Rails.root)
   end
 
   def register(plugin_module, options={})
