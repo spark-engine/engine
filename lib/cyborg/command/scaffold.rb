@@ -202,8 +202,8 @@ end})
 end})
 
       layout = %Q{<%= render_layout '#{namespace}/default' do %>
-  <% stylesheets do %><%= stylesheet_link_tag('application')<% end %>
-  <% javascripts do %><%= javascript_include_tag('application')<% end %>
+  <% stylesheets { stylesheet_link_tag('application') } %>
+  <% javascripts { javascript_include_tag('application') } %>
 <% end %>}
 
       write_file(File.join(site_path, 'app/views/layouts/default.html.erb'), layout)
