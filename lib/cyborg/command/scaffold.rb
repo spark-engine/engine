@@ -119,6 +119,7 @@ site/log/*.log
 site/tmp/
 /public/
 _svg.js
+.esvg-cache
 .sass-cache}, 'a')
     end
 
@@ -267,7 +268,9 @@ end
     end
 
     def modulize(input)
-      input.split('_').collect(&:capitalize).join
+      input.split('_').collect { |name|
+        (name =~ /[A-Z]/) ? name : name.capitalize
+      }.join
     end
 
     def underscorize(input)
