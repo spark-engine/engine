@@ -197,7 +197,21 @@ end})
 
       write_file(File.join(site_path, 'app/controllers/docs_controller.rb'), %Q{class DocsController < ApplicationController
   def show
-    render action: "#\{params[:page]\}"
+    page = params[:page]
+
+    %w(docs).each do | root_page |
+      if page.match(\/\#{root_page}\\/?$/)
+        page = File.join(root_page, 'index')
+      end
+    end
+
+    if template_exists? page
+      render template: page
+    elsif template_exists? "docs/\#{page}"
+      render template: "docs/\#{page}"
+    else
+      render file: "404.html", status: :not_found
+    end
   end
 end})
 
