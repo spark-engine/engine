@@ -34,6 +34,8 @@ module Cyborg
         from_root { gem_install }
       when 'gem:release'
         from_root { gem_release }
+      when 'gem:tag'
+        from_root { gem_tag }
       else
         puts "Command `#{options[:command]}` not recognized"
       end
@@ -69,10 +71,15 @@ module Cyborg
       if key = ENV['RUBYGEMS_API_KEY']
         gem = "#{Cyborg.plugin.gem_name}-#{Cyborg.plugin.version}.gem"
         system "bundle exec rake build"
-        system "curl --data-binary @#{gem} -H 'Authorization:#{key}' https://rubygems.org/api/v1/gems"
+        system "curl --data-binary @./pkg/#{gem} -H 'Authorization:#{key}' https://rubygems.org/api/v1/gems"
       else
         system 'bundle exec rake release'
       end
+    end
+
+    def gem_tag
+      require './lib/tungsten/version.rb'
+      system "git tag v#{Tungsten::VERSION}"
     end
 
     def require_rails
