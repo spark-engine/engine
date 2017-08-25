@@ -1,3 +1,3 @@
 module Cyborg
-  VERSION = "0.5.33"
+  VERSION = "0.6.0"
 end

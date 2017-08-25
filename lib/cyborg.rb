@@ -31,9 +31,9 @@ module Cyborg
     Cyborg::ConfigData.read(Cyborg.plugin.root, Rails.root)
   end
 
-  def register(plugin_module, options={})
+  def register(plugin_module, options={}, &block)
     @plugin = plugin_module.new(options)
-    @plugin.create_engine
+    @plugin.create_engine(&block)
     patch_rails
   end
 

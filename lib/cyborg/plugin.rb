@@ -19,7 +19,7 @@ module Cyborg
       @engine.name.sub(/::Engine/,'')
     end
 
-    def create_engine
+    def create_engine(&block)
       # Create a new Rails::Engine
       @engine = parent_module.const_set('Engine', Class.new(Rails::Engine) do
 
@@ -42,7 +42,10 @@ module Cyborg
             app.middleware.insert_before ::ActionDispatch::Static, Rack::Deflater
           end
         end
+
       end)
+
+      @engine.instance_eval(&block) if block_given?
     end
 
     def parent_module
