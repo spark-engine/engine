@@ -51,6 +51,8 @@ module Cyborg
         style = Cyborg.production? ? "compressed" : 'nested'
         dest = destination(file)
 
+        Sass.logger.log_level = :error if Cyborg.production?
+
         css = Sass.compile_file(file, style: style)
         css = AutoprefixerRails.process(css).css
 

@@ -113,9 +113,9 @@ module Cyborg
       build(options)
       require 'listen'
 
-      trap("SIGINT") { 
+      trap("SIGINT") {
         puts "\nCyborg watcher stopped. Have a nice day!"
-        exit! 
+        exit!
       }
 
       @threads.concat Cyborg.plugin.watch(options)
