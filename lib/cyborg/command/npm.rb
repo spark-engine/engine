@@ -7,11 +7,9 @@ module Cyborg
     DEPENDENCIES = YAML.load %Q{
     private: true
     devDependencies:
-      babelify:     ^6.4.0
-      browserify:   ^11.2.0
-      browserify-incremental: ^3.0.1
-      minifyify:    ^7.3.2
-      svgo:         ^0.5.6
+      browserify:   ^16.2.1
+      browserify-incremental: ^3.1.1
+      svgo:         ^1.0.5
     }
 
     def setup
@@ -26,12 +24,6 @@ module Cyborg
 
     def package_path
       File.join(Dir.pwd, 'package.json')
-    end
-
-    def node_dependencies
-      DEPENDENCIES['devDependencies'].map do |k,v| 
-        "#{k}@\"#{v}\""
-      end.join(' ')
     end
 
     def write_package_json(contents)

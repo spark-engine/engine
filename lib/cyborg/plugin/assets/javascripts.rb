@@ -66,13 +66,16 @@ module Cyborg
 
       def build_command(file)
         dest = destination(file).sub(/\.js$/,'')
-        options = " -t babelify --standalone #{plugin.name} -o #{dest}.js -d"
+        options = "--standalone #{plugin.name} -o #{dest}.js -d"
 
-        if Cyborg.production?
-          npm_path "browserify #{file} #{options} -p [ minifyify --map #{url(file).sub(/\.js$/,'')}.map.json --output #{dest}.map.json ]"
+        cmd = if Cyborg.production?
+          npm_path "browserify #{file} #{options} -t"
         else
           npm_path "browserifyinc --cachefile #{cache_file(File.basename(dest))} #{file} #{options}"
         end
+        puts "Running: #{cmd}"
+
+        cmd
 
       end
     end
