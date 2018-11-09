@@ -2,7 +2,6 @@ require "open3"
 require "json"
 require "colorize"
 
-require "cyborg/command"
 require "cyborg/version"
 require "cyborg/plugin"
 require "cyborg/assets"
@@ -16,7 +15,7 @@ module Cyborg
   autoload :Application, "cyborg/middleware"
 
   def production?
-    ENV['CI'] || ENV['RAILS_ENV'] == 'production' || Command.production?
+    ENV['CI'] || ENV['RAILS_ENV'] == 'production' || ( defined?(Command) && Command.production? )
   end
 
   def rails5?
@@ -33,8 +32,10 @@ module Cyborg
 
   def register(plugin_module, options={}, &block)
     @plugin = plugin_module.new(options)
-    @plugin.create_engine(&block)
-    patch_rails
+    if defined? Rails
+      @plugin.create_engine(&block)
+      patch_rails
+    end
   end
 
   def patch_rails

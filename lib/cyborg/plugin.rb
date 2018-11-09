@@ -186,5 +186,11 @@ module Cyborg
         end
       EOS
     end
+
+    # Allow plugins to offer a CLI for build and release features
+    def self.exec_command
+      require 'cyborg/command'
+      require 'cyborg/command/engine'
+    end
   end
 end

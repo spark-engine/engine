@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= @plugin_module %></title>
+    <%%= csrf_meta_tags %>
+    <%%= asset_tags %>
+    <%%= yield :stylesheets %>
+    <%%= yield :head %>
+  </head>
+
+  <body>
+    <div class='site'>
+      <div class='page'><%%= yield %></div>
+    </div>
+  </body>
+  <%%= javascript_tag "<%= @engine %>" %>
+  <%%= yield :javascripts %>
+</html>

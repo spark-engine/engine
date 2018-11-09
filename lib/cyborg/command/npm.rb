@@ -13,7 +13,7 @@ module Cyborg
     }
 
     def setup
-      puts "\nInstalling npm dependencies…".bold
+      puts "\nAdding npm dependencies…".bold
 
       if File.exist?(package_path)
         update_package_json

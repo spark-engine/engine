@@ -1,19 +1,9 @@
-require 'rack/cors'
 require 'action_dispatch/middleware/static'
 
 module Cyborg
   class Application < Rails::Application
-    config.middleware.insert_before ActionDispatch::Static, Rack::Deflater
-
-    config.middleware.insert_before 0, Rack::Cors, :debug => true, :logger => (-> { Rails.logger }) do
-      allow do
-        origins "*"
-        resource "*", {
-          :headers => :any,
-          :expose => ["Location"],
-          :methods => [:get, :post, :put, :patch, :delete, :options]
-        }
-      end
+    initializer "static assets" do |app|
+      app.middleware.insert_before(::ActionDispatch::Static, ::ActionDispatch::Static, "#{root}/public")
     end
   end
 

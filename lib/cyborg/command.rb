@@ -1,7 +1,3 @@
-require "cyborg/command/help"
-require "cyborg/command/npm"
-require "cyborg/command/scaffold"
-
 module Cyborg
   module Command
     extend self
@@ -17,6 +13,7 @@ module Cyborg
 
       case options[:command]
       when 'new', 'n'
+        require "cyborg/scaffold"
         Scaffold.new(options)
       when 'build', 'b'
         from_root { dispatch(:build, options) }
@@ -65,15 +62,23 @@ module Cyborg
 
     def gem_release
       @production = true
-      FileUtils.rm_rf('public')
-      dispatch(:build)
+      gem_build
+      version = Cyborg.plugin.version
+      gem_file = "./pkg/#{Cyborg.plugin.gem}-#{version}.gem"
 
-      if key = ENV['RUBYGEMS_API_KEY']
-        gem = "#{Cyborg.plugin.gem_name}-#{Cyborg.plugin.version}.gem"
-        system "bundle exec rake build"
-        system "curl --data-binary @./pkg/#{gem} -H 'Authorization:#{key}' https://rubygems.org/api/v1/gems"
-      else
-        system 'bundle exec rake release'
+      if File.exists?(gem_file)
+        system "git commit -m v#{version}"
+        system "git tag v#{version}"
+        system "git push origin $(git rev-parse --abbrev-ref HEAD) --tag"
+
+        if key = ENV['RUBYGEMS_API_KEY']
+          gem = "#{Cyborg.plugin.gem_name}-#{Cyborg.plugin.version}.gem"
+          system "bundle exec rake build"
+          system "curl --data-binary @./pkg/#{gem} -H 'Authorization:#{key}' https://rubygems.org/api/v1/gems"
+        else
+          system "gem push #{gem_file}"
+          system "rm ./public/*.gz"
+        end
       end
     end
 
@@ -87,6 +92,7 @@ module Cyborg
     end
 
     def clean
+      FileUtils.rm_rf('public')
       FileUtils.rm_rf(Cyborg.rails_path('tmp/cache/'))
       FileUtils.rm_rf('.sass-cache')
       FileUtils.rm_rf(Cyborg.rails_path('.sass-cache'))
@@ -114,7 +120,7 @@ module Cyborg
       require 'listen'
 
       trap("SIGINT") {
-        puts "\nCyborg watcher stopped. Have a nice day!"
+        puts "\n#{Cyborg.plugin.name} watcher stopped. Have a nice day!"
         exit!
       }
 
@@ -130,7 +136,7 @@ module Cyborg
 
     def from_root(command=nil, &blk)
       unless dir = Cyborg.gem_path
-        abort "Command must be run from the root of a Cyborg Plugin (adjacent to the gemspec)."
+        abort "Command must be run from the root of an engine (adjacent to the gemspec)."
       end
 
       Dir.chdir(dir) do

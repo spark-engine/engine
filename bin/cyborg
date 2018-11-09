@@ -4,8 +4,12 @@ $LOAD_PATH.unshift(File.expand_path("../lib", File.dirname(__FILE__)))
 
 require 'optparse'
 require 'cyborg'
+require 'cyborg/command'
+require "cyborg/command/help"
 
-options = {assets: []}
+options = {
+  path: '.'
+}
 
 def next_arg
   if ARGV.first && !ARGV.first.match(/^-/)
@@ -34,48 +38,6 @@ OptionParser.new do |opts|
 
     opts.on("-f", "--force", "overwrite existing files") do |val|
       options[:force] = true
-    end
-  end
-
-  if %w(s server).include? options[:command]
-    opts.on("-w", "--watch", "Watch assets") do |val|
-      options[:watch] = true
-    end
-  end
-
-  if %w(b w s build watch server).include? options[:command]
-    opts.on("-j", "--js", "Build javascripts.") do |val|
-      options[:select_assets] = true
-      options[:js] = true
-    end
-
-    opts.on("-c", "--css", "Build css.") do |val|
-      options[:select_assets] = true
-      options[:css] = true
-    end
-
-    opts.on("-s", "--svg", "Build svgs.") do |val|
-      options[:select_assets] = true
-      options[:svg] = true
-    end
-
-    opts.on("-P", "--production", "Build assets as with production mode.") do |val|
-      ENV['RAILS_ENV'] = 'production'
-      options[:production] = true
-    end
-
-    opts.on("-C", "--clean", "Remove cache files before build.") do |val|
-      options[:clean] = true
-    end
-  end
-
-  if %w(s server).include? options[:command]
-    opts.on("-p", "--port PORT", String, "serve site at port") do |val|
-      options[:port] = val
-    end
-    
-    opts.on("-b", "--bind HOST", String, "Bind to a specific host, e.g. 0.0.0.0") do |val|
-      options[:host] = val
     end
   end
 
