@@ -12,22 +12,25 @@ module Cyborg
       @namespace = @engine
       @plugin_module = modulize @engine
       @gem_module = modulize @gem
+      @gem_temp = ".#{@gem}-temp"
 
       FileUtils.mkdir_p @cwd
 
       Dir.chdir @cwd do
         puts "Creating new plugin #{@namespace}".bold
-        engine_site_scaffold
 
         @gemspec_path = new_gem
         @spec = Gem::Specification.load(@gemspec_path)
         @path = File.expand_path(File.dirname(@gemspec_path))
 
-        engine_copy
+        engine_scaffold
+
         bootstrap_gem
         setup_package_json
         update_git
       end
+
+      post_install
     end
 
     # Create a new gem with Bundle's gem command
@@ -58,42 +61,46 @@ module Cyborg
     end
 
     # Create an Rails plugin engine for documentation site
-    def engine_site_scaffold
-      FileUtils.mkdir_p(".#{gem}-tmp")
-      Dir.chdir ".#{gem}-tmp" do
+    def engine_scaffold
+      FileUtils.mkdir_p(@gem_temp)
+      Dir.chdir(@gem_temp) do
         response = Open3.capture3("rails plugin new #{gem} --mountable --dummy-path=site --skip-test-unit")
         if !response[1].empty?
           puts response[1]
           abort "FAILED: Please be sure you have the rails gem installed with `gem install rails`"
         end
+
+        # Remove files and directories that are unnecessary for the
+        # light-weight Rails documentation site
+        remove = %w(mailers models assets channels jobs layouts).map{ |f| File.join('app', f) }
+        remove.concat %w(cable.yml storage.yml database.yml).map{ |f| File.join('config', f) }
+
+        remove.each { |f| FileUtils.rm_rf File.join(@gem, 'site', f), secure: true }
       end
+      
+
+      engine_copy
     end
 
-    # Copy site scaffold into site sub directory
+    # Copy parts of the engine scaffold into site directory
     def engine_copy
-      site_path = File.join(path, 'site')
-      FileUtils.mkdir_p(site_path)
+      site_path = File.join path, 'site'
+      FileUtils.mkdir_p site_path
 
-      Dir.chdir ".#{gem}-tmp/#{gem}" do
+      ## Copy Rails plugin files
+      Dir.chdir "#{@gem_temp}/#{gem}/site" do
         %w(app config bin config.ru Rakefile public log).each do |item|
-          target = File.join(site_path, item)
+          target = File.join site_path, item
 
-          FileUtils.cp_r(File.join('site', item), target)
+          FileUtils.cp_r item, target
+
           action_log "create", target.sub(@cwd+'/','')
         end
 
       end
 
-      FileUtils.rm_rf(".#{gem}-tmp")
-
-      # Remove files and directories that are unnecessary for the
-      # light-weight Rails documentation site
-      remove = %w(mailers models assets channels jobs layouts).map{ |f| File.join('app' f) }
-      remove.concat %w(cable.yml storage.yml database.yml).map{ |f| File.join('config' f) }
-
-      remove.each do |item|
-        FileUtils.rm_rf(File.join(site_path, item))
-      end
+      # Remove temp dir
+      FileUtils.rm_rf @gem_temp
     end
 
     def update_git
@@ -101,36 +108,6 @@ module Cyborg
         system "git reset"
         system "git add -A"
       end
-    end
-
-    def gemspec
-%Q{# coding: utf-8
-$:.push File.expand_path("../lib", __FILE__)
-
-require "#{spec.name}/version"
-
-# Describe your gem and declare its dependencies:
-Gem::Specification.new do |spec|
-  spec.name        = "#{spec.name}"
-  spec.version     = #{@gem_module}::VERSION
-  spec.authors     = #{spec.authors}
-  spec.email       = #{spec.email}
-  spec.summary     = "Summary of your gem."
-  spec.description = "Description of your gem (usually longer)."
-  spec.license     = "#{spec.license}"
-  spec.bindir      = 'bin'
-
-  spec.files         = Dir["{app,bin,lib,public,config}/**/*", "LICENSE.txt", "README.md"]
-  spec.executables   = spec.files.grep(%r{^bin/}) { |f| File.basename(f) }
-  spec.require_paths = ["lib"]
-
-  spec.add_dependency "rails", ">= 4"
-  spec.add_runtime_dependency "cyborg"
-
-  spec.add_development_dependency "bundler", "~> 1.12"
-  spec.add_development_dependency "rake", "~> 10.0"
-end
-}
     end
 
     def write_template(template, target=nil)
@@ -173,6 +150,28 @@ end
 
         action_log(type, path)
       end
+    end
+
+    def post_install
+      require 'pathname'
+
+      target = Pathname.new File.join(@cwd, @gem) 
+      dir = target.relative_path_from Pathname.new(Dir.pwd)
+      victory = "#{@plugin_module} Design System created at #{dir}. Huzzah!"
+      dashes = ''
+      victory.size.times{ dashes += '-' }
+
+      puts "\n#{victory}\n#{dashes}".bold
+
+      puts "Install dependencies:"
+      puts "  - cd #{dir}"
+      puts "  - bundle"
+      puts "  - yarn install (or npm install)\n\n"
+      puts "Then give it a spin.\n\n"
+      puts "  #{@engine} build".bold + "  - builds assets"
+      puts "  #{@engine} server".bold + " - view documentation site in a server"
+      puts "  #{@engine} help".bold + "   - learn more…"
+      puts dashes + "\n\n"
     end
 
     def action_log(action, path)
