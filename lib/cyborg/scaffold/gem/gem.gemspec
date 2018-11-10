@@ -12,10 +12,8 @@ Gem::Specification.new do |spec|
   spec.summary     = "Summary of your gem."
   spec.description = "Description of your gem (usually longer)."
   spec.license     = "<%= @spec.license %>"
-  spec.bindir      = 'bin'
 
-  spec.files         = Dir["{app,bin,lib,public,config}/**/*", "LICENSE.txt", "README.md"]
-  spec.executables   = spec.files.grep(%r{^bin/}) { |f| File.basename(f) }
+  spec.files         = Dir["{app,lib,public,config}/**/*", "LICENSE.txt", "README.md"]
   spec.require_paths = ["lib"]
 
   spec.add_dependency "rails", ">= 4"

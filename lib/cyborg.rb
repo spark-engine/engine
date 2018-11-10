@@ -52,24 +52,45 @@ module Cyborg
     end
   end
 
-  def at_rails_root
+  def at_rails_root?
     File.exist?("bin/rails")
   end
 
-  def at_gem_root
+  def plugin_gemspec
+    path = File.join(gem_path, "*.gemspec")
+    Dir[path].first
+  end
+
+  def plugin_spec
+    @plugin_spec ||= begin
+      if file = plugin_gemspec
+        spec = Gem::Specification.load(file)
+        spec if spec.name != 'cyborg'
+      end
+    end
+  end
+
+  def load_plugin
+    plugin || if spec = plugin_spec
+      require spec.name unless spec.name == 'cyborg'
+      return plugin
+    end
+  end
+
+  def at_gem_root?
     !Dir['*.gemspec'].empty?
   end
 
   def gem_path
-    if at_gem_root
+    if at_gem_root?
       Dir.pwd
-    elsif at_rails_root
+    elsif at_rails_root?
       "../"
     end
   end
 
   def rails_path(sub=nil)
-    path = if at_rails_root
+    path = if at_rails_root?
       Dir.pwd
     else
       dir = Dir["**/bin/rails"]

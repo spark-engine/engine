@@ -56,8 +56,6 @@ module Cyborg
       Dir.glob(scaffold_path, File::FNM_DOTMATCH).select{|f| File.file? f}.each do |f|
         write_template f.split(/cyborg\/scaffold\//)[1]
       end
-
-      FileUtils.chmod '+x', "#{gem}/bin/#{engine}"
     end
 
     # Create an Rails plugin engine for documentation site
@@ -168,9 +166,9 @@ module Cyborg
       puts "  - bundle"
       puts "  - yarn install (or npm install)\n\n"
       puts "Then give it a spin.\n\n"
-      puts "  #{@engine} build".bold + "  - builds assets"
-      puts "  #{@engine} server".bold + " - view documentation site in a server"
-      puts "  #{@engine} help".bold + "   - learn more…"
+      puts "  cyborg build".bold + "  - builds assets"
+      puts "  cyborg server".bold + " - view documentation site in a server"
+      puts "  cyborg help".bold + "   - learn more…"
       puts dashes + "\n\n"
     end
 
