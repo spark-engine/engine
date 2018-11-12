@@ -42,6 +42,7 @@ module SparkEngine
       spec = SparkEngine.plugin_spec
       puts "spark_engine v #{SparkEngine::VERSION}"
       puts " - #{spec.name} v #{spec.version}\n" if spec
+      puts ""
     end
 
     def production?

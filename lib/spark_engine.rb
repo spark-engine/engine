@@ -57,8 +57,10 @@ module SparkEngine
   end
 
   def plugin_gemspec
-    path = File.join(gem_path, "*.gemspec")
-    Dir[path].first
+    if gem_path
+      path = File.join(gem_path, "*.gemspec")
+      Dir[path].first
+    end
   end
 
   def plugin_spec

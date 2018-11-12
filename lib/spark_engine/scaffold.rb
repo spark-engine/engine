@@ -70,7 +70,7 @@ module SparkEngine
 
         # Remove files and directories that are unnecessary for the
         # light-weight Rails documentation site
-        remove = %w(mailers models assets channels jobs layouts).map{ |f| File.join('app', f) }
+        remove = %w(mailers models assets channels jobs views).map{ |f| File.join('app', f) }
         remove.concat %w(cable.yml storage.yml database.yml).map{ |f| File.join('config', f) }
 
         remove.each { |f| FileUtils.rm_rf File.join(@gem, 'site', f), secure: true }

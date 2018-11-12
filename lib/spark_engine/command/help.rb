@@ -5,20 +5,27 @@ module SparkEngine
     def banner(command=nil)
       if command.nil?
         <<-HERE
-Commands:
-  #{command_list.map{|c| commands(c) }.join("\n  ")}
+General Commands (run from anywhere):
+  #{spark_commands.map{|c| commands(c) }.join("\n  ")}
 
-For help with a specific command, run `spark_engine help command`
+Engine Commands (run these from your project's directory)
+  #{engine_commands.map{|c| commands(c) }.join("\n  ")}
+
+For help with a specific command, run `spark help command`
 
 Options:
         HERE
       elsif commands(command)
-        "\nUsage:\n  spark_engine #{commands(command)}\n\nOptions:\n"
+        "\nUsage:\n  spark #{commands(command)}\n\nOptions:\n"
       end
     end
 
-    def command_list
-      %w(new help build watch server help gem:build gem:install gem:release)
+    def engine_commands
+      %w(help build watch server help gem:build gem:install gem:release)
+    end
+
+    def spark_commands
+      %w(new help)
     end
 
     def commands(command)
@@ -37,7 +44,7 @@ Options:
     end
 
     def new
-      "new name [options]   # Create a new SparkEngine engine"
+      "new name [options]   # Create a new Spark framework engine"
     end
 
     def help
