@@ -7,15 +7,15 @@ A design systems framework for Rails.
 
 First install the gem.
 
-``sh
+```sh
 gem install spark_engine
-``
+```
 
 Generate a new engine with Spark.
 
-``sh
+```sh
 spark new your_plugin
-``
+```
 
 This will create a new gem and generate the scaffolding for a Spark Rails Engine.
 
