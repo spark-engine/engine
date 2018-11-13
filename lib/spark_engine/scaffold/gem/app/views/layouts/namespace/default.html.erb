@@ -2,17 +2,22 @@
 <html>
   <head>
     <title><%= @plugin_module %></title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <%%= csrf_meta_tags %>
-    <%%= asset_tags %>
+    <%%= stylesheet_tag "<%= @engine %>" %>
     <%%= yield :stylesheets %>
     <%%= yield :head %>
+    <script>console.log("<%= @plugin_module %>: <%%= <%= @gem_module %>::VERSION %>")</script>
   </head>
 
-  <body>
-    <div class='site'>
-      <div class='page'><%%= yield %></div>
-    </div>
+  <%% body_classes ||= [] %>
+  <body class="<%%= body_classes.join(' ') %>">
+    <%%= yield %>
+
+    <%%= javascript_tag "<%= @engine %>" %>
+    <%%= yield :javascripts %>
   </body>
-  <%%= javascript_tag "<%= @engine %>" %>
-  <%%= yield :javascripts %>
 </html>

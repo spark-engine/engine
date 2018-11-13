@@ -1,5 +1,8 @@
 require 'sass'
-require "autoprefixer-rails"
+begin
+  require "autoprefixer-rails"
+rescue
+end
 
 module SparkEngine
   module Assets
@@ -41,7 +44,8 @@ module SparkEngine
       end
 
       def build_css(file)
-        css = AutoprefixerRails.process(File.read(file)).css
+        css = File.read(file)
+        css = AutoprefixerRails.process().css if defined? AutoprefixerRails
         File.open(destination(file), 'w') { |io| io.write(css) }
 
         compress(destination(file))
@@ -54,7 +58,7 @@ module SparkEngine
         Sass.logger.log_level = :error if SparkEngine.production?
 
         css = Sass.compile_file(file, style: style)
-        css = AutoprefixerRails.process(css).css
+        css = AutoprefixerRails.process(css).css if defined? AutoprefixerRails
 
         File.open(dest, 'w') { |io| io.write(css) }
 

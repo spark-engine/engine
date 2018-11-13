@@ -18,10 +18,6 @@ module SparkEngine
     ENV['CI'] || ENV['RAILS_ENV'] == 'production' || ( defined?(Command) && Command.production? )
   end
 
-  def rails5?
-   Gem::Version.new(Rails.version) >= Gem::Version.new('5') 
-  end
-
   def plugin
     @plugin
   end

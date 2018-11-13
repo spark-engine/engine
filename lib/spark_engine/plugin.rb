@@ -37,7 +37,7 @@ module SparkEngine
         require 'spark_engine/middleware'
 
         initializer "#{name}.static_assets" do |app|
-          if !SparkEngine.rails5? || app.config.public_file_server.enabled
+          if app.config.public_file_server.enabled
             app.middleware.insert_after ::ActionDispatch::Static, SparkEngine::StaticAssets, "#{root}/public", engine_name: SparkEngine.plugin.name
             app.middleware.insert_before ::ActionDispatch::Static, Rack::Deflater
           end

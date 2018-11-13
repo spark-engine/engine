@@ -3,8 +3,10 @@ module SparkEngine
     module LayoutHelper
       def render_layout(*args, &block)
         options = args.last.is_a?(Hash) ? args.pop : {}
-        layout = args.first || 'default'
-        options[:template] = "layouts/#{layout}"
+        options[:template] = "layouts/#{args.first}"
+        options[:locals] ||= {}
+        options[:locals][:classes] = [options.delete(:classes)].flatten
+
         yield if block_given?
         render options
       end
