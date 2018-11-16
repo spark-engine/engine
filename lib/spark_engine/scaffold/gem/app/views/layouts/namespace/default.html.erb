@@ -13,8 +13,7 @@
     <script>console.log("<%= @plugin_module %>: <%%= <%= @gem_module %>::VERSION %>")</script>
   </head>
 
-  <%% body_classes ||= [] %>
-  <body class="<%%= body_classes.join(' ') %>">
+  <body class="<%%= root_class %>">
     <%%= yield %>
 
     <%%= javascript_tag "<%= @engine %>" %>
