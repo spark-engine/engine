@@ -13,6 +13,7 @@ module SparkEngine
 
       def esvg
         @svg || Esvg.new({
+          root: plugin.root,
           config_file: File.join(plugin.root, 'config', 'esvg.yml'),
           source: @base,
           assets: plugin.paths[:javascripts],
