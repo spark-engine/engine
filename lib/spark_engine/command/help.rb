@@ -21,7 +21,14 @@ Options:
     end
 
     def engine_commands
-      %w(help build watch server help gem:build gem:install gem:release)
+      list = %w(help build watch server help gem:build gem:install gem:release)
+      begin
+        gem 'bump'
+        list.concat %w(gem:bump:patch gem:bump:minor gem:bump:major)
+      rescue Gem::LoadError
+      end
+
+      list
     end
 
     def spark_commands
@@ -40,6 +47,9 @@ Options:
       when 'gem:build'; gem_build
       when 'gem:install'; gem_install
       when 'gem:release'; gem_release
+      when 'gem:bump:patch'; gem_bump_patch
+      when 'gem:bump:minor'; gem_bump_minor
+      when 'gem:bump:major'; gem_bump_major
       end
     end
 
@@ -81,6 +91,18 @@ Options:
 
     def gem_release
       "gem:release          # Build assets for production, build, and release gem to rubygems.org"
+    end
+
+    def gem_bump_patch
+      "gem:bump:patch       # Upgrade v0.0.0 -> v0.0.1 and build assets"
+    end
+
+    def gem_bump_minor
+      "gem:bump:minor       # Upgrade v0.0.0 -> v0.1.0 and build assets"
+    end
+
+    def gem_bump_major
+      "gem:bump:major       # Upgrade v0.0.0 -> v1.0.0 and build assets"
     end
   end
 end

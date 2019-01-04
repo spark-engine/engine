@@ -33,6 +33,12 @@ module SparkEngine
         from_root { gem_release }
       when 'gem:tag'
         from_root { gem_tag }
+      when 'gem:bump:patch'
+        from_root { gem_bump('patch') }
+      when 'gem:bump:minor'
+        from_root { gem_bump('minor') }
+      when 'gem:bump:major'
+        from_root { gem_bump('major') }
       else
         puts "Command `#{options[:command]}` not recognized"
       end
@@ -67,11 +73,11 @@ module SparkEngine
       @production = true
       gem_build
       spec = SparkEngine.plugin_spec
-      gem_file = "./pkg/#{spec.gem}-#{spec.version}.gem"
+      gem_file = "./pkg/#{spec.name}-#{spec.version}.gem"
 
       if File.exists?(gem_file)
         system "git commit -m v#{spec.version}"
-        system "git tag v#{spec.version}"
+        gem_tag
         system "git push origin $(git rev-parse --abbrev-ref HEAD) --tag"
 
         if key = ENV['RUBYGEMS_API_KEY']
@@ -83,6 +89,11 @@ module SparkEngine
           system "rm ./public/*.gz"
         end
       end
+    end
+
+    def gem_bump(v)
+      system "bump #{v} --no-commit"
+      gem_build
     end
 
     def gem_tag
