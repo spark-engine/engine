@@ -12,7 +12,6 @@ require "spark_engine/config_data"
 module SparkEngine
   extend self
   attr_accessor :plugin
-  autoload :Application, "spark_engine/middleware"
 
   def production?
     ENV['CI'] || ENV['RAILS_ENV'] == 'production' || ( defined?(Command) && Command.production? )

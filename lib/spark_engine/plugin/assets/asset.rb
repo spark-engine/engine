@@ -26,7 +26,7 @@ module SparkEngine
 
         # Filter names based on asset file locations
         find_files.select do |f|
-          names.include? File.basename(f).sub(/(\..+)$/,'')
+          names.include?(File.basename(f).sub(/(\..+)$/,''))
         end
       end
 

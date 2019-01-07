@@ -11,7 +11,7 @@ module SparkEngine
 
     def call(env)
       req = Rack::Request.new env
-      prefix = File.join Application.config.assets.prefix, @engine_name
+      prefix = File.join Rails.application.config.assets.prefix, @engine_name
 
       if req.get? || req.head?
         path = req.path_info.chomp('/'.freeze)
