@@ -93,7 +93,7 @@ module SparkEngine
         # If names are passed, look at the basename minus
         # the extension as build files may have
         # different extensions than sources
-        names = [names].flatten.compact.map do |n|
+        names = [names].flatten.compact.uniq.map do |n|
           File.basename(n).sub(/(\..+)$/,'')
         end
 

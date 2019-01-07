@@ -1,12 +1,6 @@
 require 'action_dispatch/middleware/static'
 
 module SparkEngine
-  class Application < Rails::Application
-    initializer "static assets" do |app|
-      app.middleware.insert_before(::ActionDispatch::Static, ::ActionDispatch::Static, "#{root}/public")
-    end
-  end
-
   class StaticAssets
 
     def initialize(app, path, index: 'index', headers: {}, engine_name: nil)
