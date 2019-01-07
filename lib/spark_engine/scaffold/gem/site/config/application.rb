@@ -13,6 +13,6 @@ Bundler.require(*Rails.groups)
 require '<%= @gem %>'
 
 module Site
-  class Application < SparkEngine::Application
+  class Application < Rails::Application
   end
 end
