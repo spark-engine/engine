@@ -55,7 +55,7 @@ module SparkEngine
       end
 
       def build_css(file)
-        css = prefix( File.read(file) )
+        css = prefix_css( File.read(file) )
         File.open(destination(file), 'w') { |io| io.write(css) }
 
         compress(destination(file))
@@ -67,7 +67,7 @@ module SparkEngine
 
         Sass.logger.log_level = :error if SparkEngine.production?
 
-        css = prefix( Sass.compile_file(file, style: style) )
+        css = prefix_css( Sass.compile_file(file, style: style) )
 
         File.open(dest, 'w') { |io| io.write(css) }
 
