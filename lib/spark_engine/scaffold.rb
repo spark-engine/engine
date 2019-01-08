@@ -47,7 +47,6 @@ module SparkEngine
     end
 
     def bootstrap_gem
-
       # Remove bin
       FileUtils.rm_rf(File.join(path, 'bin'))
 
@@ -56,6 +55,8 @@ module SparkEngine
       Dir.glob(scaffold_path, File::FNM_DOTMATCH).select{|f| File.file? f}.each do |f|
         write_template f.split(/spark_engine\/scaffold\//)[1]
       end
+
+      system "bundle add listen bump"
     end
 
     # Create an Rails plugin engine for documentation site
