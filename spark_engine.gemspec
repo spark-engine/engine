@@ -19,13 +19,13 @@ Gem::Specification.new do |spec|
 
   spec.add_runtime_dependency 'sass', '~> 3.4'
   spec.add_runtime_dependency 'esvg', '~> 4.2'
-  spec.add_runtime_dependency 'listen', '~> 3.0.0'
   spec.add_runtime_dependency 'block_helpers', '~> 0.3'
   spec.add_runtime_dependency 'colorize', '~> 0.8'
   spec.add_runtime_dependency 'bundler', '~> 1.10'
-  spec.add_runtime_dependency 'autoprefixer-rails', '>= 9.0'
-  spec.add_runtime_dependency 'rails', '>= 5.0', '< 6'
+  spec.add_runtime_dependency 'autoprefixer-rails', '>= 8.0', '< 10'
 
+  spec.add_development_dependency 'rails', '>= 5.0', '< 6'
+  spec.add_development_dependency 'listen', '~> 3.0.0'
   spec.add_development_dependency 'rake', '~> 10.0'
   spec.add_development_dependency 'pry-byebug'
 end

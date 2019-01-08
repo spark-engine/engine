@@ -29,11 +29,11 @@ module SparkEngine
       end
 
       def stylesheet_url(*args)
-        SparkEngine.plugin.stylesheets.urls(args)
+        SparkEngine.plugin.stylesheets.urls(args).uniq
       end
 
       def javascript_url(*args)
-        SparkEngine.plugin.javascripts.urls(args)
+        SparkEngine.plugin.javascripts.urls(args).uniq
       end
 
       def asset_tags

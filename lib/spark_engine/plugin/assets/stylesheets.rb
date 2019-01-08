@@ -16,7 +16,7 @@ module SparkEngine
         @autoprefixer_config ||= begin
           config_path = File.join( SparkEngine.plugin.root, 'config', 'autoprefixer.yml' )
           if File.exist?( config_path )
-            YAML.load_file( config_path ).symbolize_keys
+            YAML.load_file( config_path ).deep_symbolize_keys
           else
             {}
           end
@@ -55,8 +55,7 @@ module SparkEngine
       end
 
       def build_css(file)
-        css = File.read(file)
-        css = AutoprefixerRails.process(css, autoprefixer_config).css if defined? AutoprefixerRails
+        css = prefix( File.read(file) )
         File.open(destination(file), 'w') { |io| io.write(css) }
 
         compress(destination(file))
@@ -68,12 +67,19 @@ module SparkEngine
 
         Sass.logger.log_level = :error if SparkEngine.production?
 
-        css = Sass.compile_file(file, style: style)
-        css = AutoprefixerRails.process(css, autoprefixer_config).css if defined? AutoprefixerRails
+        css = prefix( Sass.compile_file(file, style: style) )
 
         File.open(dest, 'w') { |io| io.write(css) }
 
         compress(dest)
+      end
+
+      def prefix_css(css)
+        if defined? AutoprefixerRails
+          AutoprefixerRails.process(css, autoprefixer_config).css
+        else
+          css
+        end
       end
 
       def data
