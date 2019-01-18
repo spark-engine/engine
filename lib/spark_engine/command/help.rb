@@ -94,15 +94,15 @@ Options:
     end
 
     def gem_bump_patch
-      "gem:bump:patch       # Upgrade v0.0.0 -> v0.0.1 and build assets"
+      "gem:bump:patch       # Bump version v0.0.0 -> v0.0.1"
     end
 
     def gem_bump_minor
-      "gem:bump:minor       # Upgrade v0.0.0 -> v0.1.0 and build assets"
+      "gem:bump:minor       # Bump version v0.0.0 -> v0.1.0"
     end
 
     def gem_bump_major
-      "gem:bump:major       # Upgrade v0.0.0 -> v1.0.0 and build assets"
+      "gem:bump:major       # Bump version v0.0.0 -> v1.0.0"
     end
   end
 end

@@ -93,7 +93,6 @@ module SparkEngine
 
     def gem_bump(v)
       system "bump #{v} --no-commit"
-      gem_build
     end
 
     def gem_tag
