@@ -65,13 +65,14 @@ module SparkEngine
       end
 
       def build_command(file)
-        dest = destination(file).sub(/\.js$/,'')
-        options = "--standalone #{plugin.name} -o #{dest}.js -d"
+        dest = destination(file)
+        basename = pathname(file)
+        options = "--standalone #{plugin.name} -d"
 
         cmd = if SparkEngine.production?
-                npm_path "browserify #{file} --debug | #{npm_path('uglifyjs')} --source-map --output #{dest}.js "
+                npm_path %Q{browserify #{file} #{options} | #{npm_path('uglifyjs')} --output #{dest} --source-map "url='#{basename}.map',filename='#{basename}',content='inline',includeSources='true'"}
               else
-                npm_path "browserifyinc --cachefile #{cache_file(File.basename(dest))} #{file} #{options}"
+                npm_path "browserify #{file} #{options} > #{dest}"
               end
         puts "Running: #{cmd}"
 

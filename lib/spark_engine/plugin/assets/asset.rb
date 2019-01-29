@@ -35,7 +35,11 @@ module SparkEngine
       end
 
       def local_path(file)
-        destination(file).sub(plugin.root+'/','')
+        destination(file).sub(plugin.root + '/', '')
+      end
+
+      def pathname(file)
+        destination(file).sub(plugin.destination, '')
       end
 
       def build_success(file)
