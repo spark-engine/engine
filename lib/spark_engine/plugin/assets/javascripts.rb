@@ -69,10 +69,10 @@ module SparkEngine
         options = "--standalone #{plugin.name} -o #{dest}.js -d"
 
         cmd = if SparkEngine.production?
-          npm_path "browserify #{file} #{options} -t"
-        else
-          npm_path "browserifyinc --cachefile #{cache_file(File.basename(dest))} #{file} #{options}"
-        end
+                npm_path "browserify #{file} --debug | #{npm_path('uglifyjs')} --source-map --output #{dest}.js "
+              else
+                npm_path "browserifyinc --cachefile #{cache_file(File.basename(dest))} #{file} #{options}"
+              end
         puts "Running: #{cmd}"
 
         cmd

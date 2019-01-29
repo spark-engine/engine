@@ -7,9 +7,10 @@ module SparkEngine
     DEPENDENCIES = YAML.load %Q{
     private: true
     devDependencies:
-      browserify:   ^16.2.1
+      browserify: ^16.2.1
       browserify-incremental: ^3.1.1
-      svgo:         ^1.0.5
+      uglify-js: ^3.4.9
+      svgo: ^1.0.5
     }
 
     def setup
