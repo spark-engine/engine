@@ -10,6 +10,8 @@ require "spark_engine/sass/importer"
 require "spark_engine/config_data"
 
 module SparkEngine
+  autoload :BlockHelper,     'spark_engine/helpers/block_helper'
+
   extend self
   attr_accessor :plugin
 
