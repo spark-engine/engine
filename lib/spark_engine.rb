@@ -7,7 +7,7 @@ require "spark_engine/plugin"
 require "spark_engine/assets"
 require "spark_engine/sass/engine"
 require "spark_engine/sass/importer"
-require "spark_engine/config_data"
+require "spark_engine/data"
 
 module SparkEngine
   autoload :BlockHelper,     'spark_engine/helpers/block_helper'
@@ -23,8 +23,12 @@ module SparkEngine
     @plugin
   end
 
-  def config_data
-    SparkEngine::ConfigData.read(SparkEngine.plugin.root, Rails.root)
+  def data
+    if production?
+      @data ||= SparkEngine::Data.read
+    else
+      SparkEngine::Data.read
+    end
   end
 
   def register(plugin_module, options={}, &block)

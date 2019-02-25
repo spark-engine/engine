@@ -19,8 +19,8 @@ module SparkEngine
       @engine.name.sub(/::Engine/,'')
     end
 
+    # Create a new Rails::Engine
     def create_engine(&block)
-      # Create a new Rails::Engine
       @engine = parent_module.const_set('Engine', Class.new(Rails::Engine) do
 
         def spark_plugin_path
@@ -45,6 +45,11 @@ module SparkEngine
 
       end)
 
+      # Autoload engine lib
+      @engine.config.autoload_paths << File.join(@engine.spark_plugin_path, "lib")
+
+      # Takes a block passed an evaluates it in the context of a Rails engine
+      # This allows plugins to modify engines when created.
       @engine.instance_eval(&block) if block_given?
     end
 
@@ -82,7 +87,6 @@ module SparkEngine
       assets(options).each do |asset|
         asset.build
       end
-
     end
 
     def watch(options)
