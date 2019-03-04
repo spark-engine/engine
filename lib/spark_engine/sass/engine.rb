@@ -1,3 +1,4 @@
+require 'sass'
 require 'spark_engine/sass/importer'
 
 # Taken from https://github.com/chriseppstein/sass-css-importer/blob/master/lib/sass/css_importer/monkey_patches.rb

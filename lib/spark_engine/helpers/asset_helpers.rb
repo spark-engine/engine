@@ -55,6 +55,7 @@ module SparkEngine
       end
 
       def sass_data(key=nil)
+        require 'spark_engine/sass/sass_yaml'
         if key
           SparkEngine.plugin.stylesheets.data[key]
         else

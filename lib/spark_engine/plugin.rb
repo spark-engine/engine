@@ -36,6 +36,7 @@ module SparkEngine
 
         require 'spark_engine/middleware'
 
+        # Ensure compiled assets in /public are served
         initializer "#{name}.static_assets" do |app|
           if app.config.public_file_server.enabled
             app.middleware.insert_after ::ActionDispatch::Static, SparkEngine::StaticAssets, "#{root}/public", engine_name: SparkEngine.plugin.name
@@ -43,10 +44,26 @@ module SparkEngine
           end
         end
 
+        # Ensure Components are readable from engine paths
+        initializer "#{name}.view_paths" do |app|
+          ActiveSupport.on_load :action_controller do
+            append_view_path "#{SparkEngine.plugin.paths[:components]}"
+          end
+
+          # Inject Sass importer for yaml files
+          if defined?(SassC) && defined?(SassC::Rails)
+            SassC::Rails::Importer::EXTENSIONS << SassC::SparkEngine::SassYamlExtension.new
+          end
+
+        end
+
       end)
 
       # Autoload engine lib
       @engine.config.autoload_paths << File.join(@engine.spark_plugin_path, "lib")
+
+      # Autoload components
+      @engine.config.autoload_paths << SparkEngine.plugin.paths[:components]
 
       # Takes a block passed an evaluates it in the context of a Rails engine
       # This allows plugins to modify engines when created.
@@ -113,6 +130,7 @@ module SparkEngine
         paths: {
           stylesheets: "app/assets/stylesheets/#{name}",
           javascripts: "app/assets/javascripts/#{name}",
+          components:  "app/components/#{name}",
           images:      "app/assets/images/#{name}",
           svgs:        "app/assets/svgs/#{name}",
         }

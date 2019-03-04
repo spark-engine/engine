@@ -1,4 +1,3 @@
-require 'sass'
 begin
   require "autoprefixer-rails"
 rescue
@@ -61,17 +60,46 @@ module SparkEngine
         compress(destination(file))
       end
 
-      def build_sass(file)
-        style = SparkEngine.production? ? "compressed" : 'nested'
-        dest = destination(file)
+      def render_sass(file)
+        require 'sass'
 
         Sass.logger.log_level = :error if SparkEngine.production?
+        Sass.compile_file(file, style: sass_style)
+      end
 
-        css = prefix_css( Sass.compile_file(file, style: style) )
+      def render_sassc(file)
+        require "spark_engine/sassc/importer"
+        SassC.logger.log_level = :error if SparkEngine.production?
+
+        source = File.open(file, 'rb') { |f| f.read }
+        options = {
+          importer: SassC::SparkEngine::Importer,
+          load_paths: load_paths,
+          style: sass_style
+        }
+
+        SassC::Engine.new(source, options).render
+      end
+
+      def sass_style
+        SparkEngine.production? ? "compressed" : 'nested'
+      end
+
+      def build_sass(file)
+        css = prefix_css begin
+          render_sassc(file)
+        rescue LoadError => e
+          render_sass(file)
+        end
+
+        dest = destination(file)
 
         File.open(dest, 'w') { |io| io.write(css) }
-
         compress(dest)
+      end
+
+      def load_paths
+        [SparkEngine.plugin.paths[:stylesheets], SparkEngine.plugin.paths[:components]]
       end
 
       def prefix_css(css)
@@ -83,18 +111,11 @@ module SparkEngine
       end
 
       def data
-        if @data
-          @data
-        else
-          data = {}
+        return @data if @data && SparkEngine.production?
 
-          Dir[File.join(base, "**/*.yml")].each do |file|
-            key = file.sub(base+"/", '').sub(/^_/,'').sub('.yml','')
-
-            data[key] = SassParser.parse(file)
-          end
-
-          @data = data if SparkEngine.production?
+        @data = Dir[File.join(base, "**/*.yml")].each_with_object({}) do |file, data|
+          key = File.basename(file, '.*').sub(/^_/,'')
+          data[key] = SassYaml.new(file: file).to_yaml
           data
         end
       end
