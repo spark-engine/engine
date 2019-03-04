@@ -21,10 +21,8 @@ module SparkEngine
     private
 
     def _find(dir, name, options)
-      return unless yaml? name
-
       full_filename, syntax = Sass::Util.destructure(find_real_file(dir, name, options))
-      return unless full_filename && File.readable?(full_filename)
+      return unless full_filename && yaml?(full_filename) && File.readable?(full_filename)
 
       variables  = SassC::SassYaml.new(file: full_filename).to_sass
 
