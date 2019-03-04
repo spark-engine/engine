@@ -52,24 +52,27 @@ module SparkEngine
 
         end
 
+        initializer "#{name}.asset_paths" do |app|
+          app.config.assets.paths << SparkEngine.plugin.paths[:components]
+        end
+
       end)
 
-      # Autoload engine lib
-      @engine.config.autoload_paths << File.join(@engine.spark_plugin_path, "lib")
+      # Autoload engine lib and components path
+      @engine.config.autoload_paths.concat [
+        File.join(@engine.spark_plugin_path, "lib"),
+        SparkEngine.plugin.paths[:components]
+      ]
 
-      # Autoload components
-      @engine.config.autoload_paths << SparkEngine.plugin.paths[:components]
-
-      @engine.config.after_initialize do
+      @engine.config.after_initialize do |app|
         # Inject Sass importer for yaml files
         if defined?(SassC) && defined?(SassC::Rails)
           require "spark_engine/sassc/extension"
           SassC::Rails::Importer::EXTENSIONS << SassC::SparkEngine::SassYamlExtension.new
         elsif defined?(Sass)
-          require "spark_engine/sass/engine.rb"
+          require "spark_engine/sass/engine"
         end
       end
-
 
       # Takes a block passed an evaluates it in the context of a Rails engine
       # This allows plugins to modify engines when created.
