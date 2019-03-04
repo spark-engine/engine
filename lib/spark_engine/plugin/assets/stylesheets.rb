@@ -61,7 +61,7 @@ module SparkEngine
       end
 
       def render_sass(file)
-        require 'sass'
+        require "spark_engine/sass/engine.rb"
 
         Sass.logger.log_level = :error if SparkEngine.production?
         Sass.compile_file(file, style: sass_style)

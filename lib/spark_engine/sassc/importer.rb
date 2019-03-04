@@ -1,5 +1,5 @@
-require 'sassc'
-require_relative 'extension'
+require "sassc"
+require "spark_engine/sassc/extension"
 
 module SassC
   module SparkEngine

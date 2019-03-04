@@ -1,4 +1,3 @@
-require "sassc"
 require "spark_engine/sass/sass_yaml"
 
 module SassC
