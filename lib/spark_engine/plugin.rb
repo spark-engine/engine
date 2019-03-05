@@ -65,11 +65,12 @@ module SparkEngine
       ]
 
       @engine.config.after_initialize do |app|
-        # Inject Sass importer for yaml files
         if defined?(SassC) && defined?(SassC::Rails)
-          require "spark_engine/sassc/extension"
-          SassC::Rails::Importer::EXTENSIONS << SassC::SparkEngine::SassYamlExtension.new
+          # Inject Sass importer for yaml files
+          require "spark_engine/sassc/importer"
+          SassC::Rails::Importer::EXTENSIONS << SassC::SparkEngine::Importer::SassYamlExtension.new
         elsif defined?(Sass)
+          # Overwrite Sass engine with Yaml support
           require "spark_engine/sass/engine"
         end
       end
