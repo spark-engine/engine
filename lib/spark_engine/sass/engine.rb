@@ -2,7 +2,6 @@ require 'sass'
 require 'spark_engine/sass/importer'
 
 # Taken from https://github.com/chriseppstein/sass-css-importer/blob/master/lib/sass/css_importer/monkey_patches.rb
-# TODO: This feels wrong, surely there must be a better way to handle this
 
 class Sass::Engine
   alias initialize_without_yaml_importer initialize

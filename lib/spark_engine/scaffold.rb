@@ -6,6 +6,8 @@ module SparkEngine
     attr_reader :gem, :engine, :namespace, :plugin_module, :path, :gemspec_path
 
     def initialize(options)
+      return new_component(options) if options[:component]
+
       @cwd = File.expand_path(File.dirname(options[:name]))
       @gem = underscorize(File.basename(options[:name]))
       @engine = underscorize(options[:engine] || @gem)
@@ -133,22 +135,28 @@ module SparkEngine
       contents
     end
 
-    def write_file(paths, content='', mode='w')
-      paths = [paths].flatten
-      paths.each do |path|
-        if File.exist?(path)
+    def write_file(path, content='', options={})
+      options[:mode] ||= 'w'
+
+      if File.exist?(path) 
+        if options[:force]
           type = 'update'
         else
-          FileUtils.mkdir_p(File.dirname(path))
-          type = 'create'
+          return action_log('skipped', path)
         end
-
-        File.open path, mode do |io|
-          io.write(content)
-        end
-
-        action_log(type, path)
+      else
+        type = 'create'
       end
+
+      FileUtils.mkdir_p(File.dirname(path))
+
+      if content.empty?
+        FileUtils.touch(path)
+      else
+        File.open(path, options[:mode]) { |io| io.write(content) }
+      end
+
+      action_log(type, path)
     end
 
     def post_install
@@ -173,14 +181,58 @@ module SparkEngine
       puts dashes + "\n\n"
     end
 
+    def new_component(options={})
+      options = {
+        sass: true,
+        template: true,
+        js: true
+      }.merge(options)
+
+      path = File.join(SparkEngine.plugin.paths[:components], options[:component])
+      name = options[:component].split('/').last
+
+      paths = {
+        base: path,
+        component: path+'_component.rb',
+        template: File.join(path, "_#{name}.html.erb"),
+        sass: File.join(path, "_#{name}.scss"),
+        js: File.join(SparkEngine.plugin.paths[:javascripts], "components", "#{options[:component].sub(name, '_'+name)}.js")
+      }
+
+      if options[:delete]
+        return paths.values.each do |p| 
+          action_log('delete', FileUtils.rm_rf(p).first) if File.exist?(p)
+        end
+      end
+
+      # Write component class
+      component_content = %Q{class #{modulize(options[:component])}Component < #{options[:class] || 'Components::Component' }\nend} 
+      write_file(paths[:component], component_content, options)
+
+      write_file(paths[:template], '', options) if options[:template]
+      write_file(paths[:sass], '', options)     if options[:sass]
+      write_file(paths[:js], '', options)       if options[:js] 
+    end
+
+
     def action_log(action, path)
-      puts action.rjust(12).colorize(:green).bold + "  #{path}"
+      color = case action
+              when 'create', 'update'
+                :green
+              when 'skip'
+                :white
+              when 'delete'
+                :red
+              end
+      puts action.rjust(12).colorize(color).bold + "  #{path.sub(Dir.pwd+'/','')}"
     end
 
     def modulize(input)
-      input.split('_').collect { |name|
-        (name =~ /[A-Z]/) ? name : name.capitalize
-      }.join
+      classify = lambda { |name| 
+        name = (name =~ /_/) ? name.split('_').map(&classify).join : name
+        (name =~ /[A-Z]/) ? name : name.capitalize 
+      }
+      input.split('/').map(&classify).join('::')
     end
 
     def underscorize(input)

@@ -21,7 +21,7 @@ Options:
     end
 
     def engine_commands
-      list = %w(help build watch server help gem:build gem:install gem:release)
+      list = %w(help build watch server generate clean gem:build gem:install gem:release)
       begin
         gem 'bump'
         list.concat %w(gem:bump:patch gem:bump:minor gem:bump:major)
@@ -42,6 +42,7 @@ Options:
       when 'build', 'b'; build
       when 'watch', 'w'; watch
       when 'server', 's'; server
+      when 'generate', 'g'; generate
       when 'clean', 'c'; clean
       when 'help', 'h'; help
       when 'gem:build'; gem_build
@@ -54,55 +55,55 @@ Options:
     end
 
     def new
-      "new name [options]   # Create a new Spark framework engine"
+      "new name [options]       # Create a new Spark framework engine"
     end
 
     def help
-      "help [command]       # Show help for a specific command"
+      "help [command]           # Show help for a specific command"
+    end
+
+    def generate
+      "generate name [options]  # Generate a Component"
     end
 
     def build
-      "build [options]      # Build assets"
+      "build [options]          # Build assets"
     end
 
     def watch
-      "watch [options]      # Build assets when files change"
+      "watch [options]          # Build assets when files change"
     end
 
     def server
-      "server [options]     # Serve documentation site"
-    end
-
-    def clean
-      "clean                # Remove cache files"
-    end
-
-    def help
-      "help [command]       # Show help for a specific command"
+      "server [options]         # Serve documentation site"
     end
 
     def gem_build
-      "gem:build            # Build assets for production and build gem"
+      "gem:build                # Build assets for production and build gem"
+    end
+
+    def clean
+      "clean                    # Remove cache files"
     end
 
     def gem_install
-      "gem:install          # Build assets for production, build, and install gem"
+      "gem:install              # Build assets for production, build, and install gem"
     end
 
     def gem_release
-      "gem:release          # Build assets for production, build, and release gem to rubygems.org"
+      "gem:release              # Build assets for production, build, and release gem to rubygems.org"
     end
 
     def gem_bump_patch
-      "gem:bump:patch       # Bump version v0.0.0 -> v0.0.1"
+      "gem:bump:patch           # Bump version v0.0.0 -> v0.0.1"
     end
 
     def gem_bump_minor
-      "gem:bump:minor       # Bump version v0.0.0 -> v0.1.0"
+      "gem:bump:minor           # Bump version v0.0.0 -> v0.1.0"
     end
 
     def gem_bump_major
-      "gem:bump:major       # Bump version v0.0.0 -> v1.0.0"
+      "gem:bump:major           # Bump version v0.0.0 -> v1.0.0"
     end
   end
 end

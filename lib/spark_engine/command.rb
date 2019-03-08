@@ -15,6 +15,12 @@ module SparkEngine
       when 'new', 'n'
         require "spark_engine/scaffold"
         Scaffold.new(options)
+      when 'generate', 'g'
+        from_root { 
+          require "spark_engine/scaffold"
+          require_rails
+          Scaffold.new(options) 
+        }
       when 'build', 'b'
         from_root { dispatch(:build, options) }
       when 'watch', 'w'
@@ -60,6 +66,7 @@ module SparkEngine
       FileUtils.rm_rf('public')
       dispatch(:build)
       system "bundle exec rake build"
+      system "git add Gemfile*"
     end
 
     def gem_install

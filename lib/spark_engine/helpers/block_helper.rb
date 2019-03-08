@@ -21,7 +21,7 @@ module SparkEngine
           def #{method_name}(*args, &block)
             
             # Get the current helper object which has all the normal helper methods
-            if self.is_a?(SparkEngine::BlockHelper) 
+            if self.is_a?(SparkEngine::BlockHelper)
               top_level_helper = self.helper
               parent_block_helper = self
             else

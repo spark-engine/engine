@@ -41,6 +41,35 @@ OptionParser.new do |opts|
     end
   end
 
+  if %w(g generate).include? options[:command]
+    options[:component] = next_arg
+
+    opts.on("-f", "--force", "overwrite existing files") do
+      options[:force] = true
+    end
+
+    opts.on("-t", "--skip-template", "Skip html template for component") do
+      options[:template] = false
+    end
+
+    opts.on("-s", "--skip-sass", "Skip Sass for component") do
+      options[:sass] = false
+    end
+
+    opts.on("-j", "--skip-js", "Skip javascript for component") do
+      options[:js] = false
+    end
+
+    opts.on("-c", "--class ClassName", String, "Component extends a classname (default: Components::Component)") do |val|
+      options[:class] = val
+    end
+
+    opts.on('-D', '--delete', "Remove component files") do
+      options[:delete] = true
+    end
+
+  end
+
   if %w(s server).include? options[:command]
     opts.on("-w", "--watch", "Watch assets") do |val|
       options[:watch] = true
