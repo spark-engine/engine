@@ -6,15 +6,22 @@ module SparkEngine
     attr_reader :gem, :engine, :namespace, :plugin_module, :path, :gemspec_path
 
     def initialize(options)
-      return new_component(options) if options[:component]
+      require 'erb'
+      @options = options
 
-      @cwd = File.expand_path(File.dirname(options[:name]))
-      @gem = underscorize(File.basename(options[:name]))
-      @engine = underscorize(options[:engine] || @gem)
+      return new_component(@options) if @options[:component]
+
+      @cwd = File.expand_path(File.dirname(@options[:name]))
+      @gem = underscorize(File.basename(@options[:name]))
+      @engine = underscorize(@options[:engine] || @gem)
       @namespace = @engine
       @plugin_module = modulize @engine
       @gem_module = modulize @gem
       @gem_temp = ".#{@gem}-temp"
+
+      if Dir.exist?(@options[:name]) && !@options[:force]
+        return puts "Path #{@options[:name]} exists. Use --force to override"
+      end
 
       FileUtils.mkdir_p @cwd
 
@@ -55,10 +62,10 @@ module SparkEngine
       scaffold_path = File.expand_path("scaffold/**/*", File.dirname(__FILE__))
 
       Dir.glob(scaffold_path, File::FNM_DOTMATCH).select{|f| File.file? f}.each do |f|
-        write_template f.split(/spark_engine\/scaffold\//)[1]
+        write_template f.split(/spark_engine\/scaffold\//)[1], force: true
       end
 
-      system "bundle add listen bump"
+      system 'bundle'
     end
 
     # Create an Rails plugin engine for documentation site
@@ -111,7 +118,7 @@ module SparkEngine
       end
     end
 
-    def write_template(template, target=nil)
+    def write_template(template, options)
       template_path = File.expand_path("scaffold/#{template}", File.dirname(__FILE__))
 
       # Extract file extension
@@ -124,7 +131,7 @@ module SparkEngine
         'namespace' => @namespace
       }) + ext
 
-      write_file target_path, read_template(template_path)
+      write_file target_path, read_template(template_path), options
     end
 
     def read_template(file_path)

@@ -3,6 +3,9 @@ source "https://rubygems.org"
 # Specify your gem's dependencies in <%= @gem %>.gemspec
 gemspec
 
+gem 'listen'
+gem 'bump'
+
 # Select whichever sass implementation suits your setup
 # gem 'sass'
 gem 'sassc-rails'
