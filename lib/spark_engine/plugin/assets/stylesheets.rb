@@ -69,7 +69,6 @@ module SparkEngine
 
       def render_sassc(file)
         require "spark_engine/sassc/importer"
-        SassC.logger.log_level = :error if SparkEngine.production?
 
         source = File.open(file, 'rb') { |f| f.read }
         options = {
