@@ -58,6 +58,7 @@ module SparkEngine
           log_error "JS BUILD FAILED: browserifyinc NPM module not found.\n" << "Please add browserifyinc to your package.json and run `npm install`"
           abort
         end
+        puts ""
       end
 
       def npm_path( cmd )
@@ -74,7 +75,7 @@ module SparkEngine
               else
                 npm_path "browserify #{file} #{options} > #{dest}"
               end
-        puts "Running: #{cmd}"
+        puts "Running: #{cmd}" if plugin.debug?
 
         cmd
 

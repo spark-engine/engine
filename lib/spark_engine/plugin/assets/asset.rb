@@ -53,11 +53,11 @@ module SparkEngine
       end
 
       def log_success( msg )
-        STDOUT.puts msg.to_s.colorize(:green)
+        STDOUT.print msg.to_s.colorize(:green)
       end
 
       def log_error( msg )
-        STDERR.puts msg.to_s.colorize(:red)
+        STDERR.print msg.to_s.colorize(:red)
       end
 
       # Determine if an NPM module is installed by checking paths with `npm bin`

@@ -202,7 +202,7 @@ module SparkEngine
         base: path,
         component: path+'_component.rb',
         template: File.join(path, "_#{name}.html.erb"),
-        sass: File.join(path, "_#{name}.scss"),
+        sass: File.join(SparkEngine.plugin.paths[:stylesheets], "components", "#{options[:component].sub(name, '_'+name)}.scss"),
         js: File.join(SparkEngine.plugin.paths[:javascripts], "components", "#{options[:component].sub(name, '_'+name)}.js")
       }
 

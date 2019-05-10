@@ -116,6 +116,10 @@ module SparkEngine
       end
     end
 
+    def debug?
+      ENV['SPARK_DEBUG']
+    end
+
     def watch(options)
       assets(options).map(&:watch)
     end
