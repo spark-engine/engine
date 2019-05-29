@@ -66,7 +66,7 @@ module SparkEngine
       FileUtils.rm_rf('public')
       dispatch(:build)
       system "bundle exec rake build"
-      system "git add Gemfile*"
+      system "git add Gemfile* lib"
     end
 
     def gem_install

@@ -48,19 +48,25 @@ OptionParser.new do |opts|
       options[:force] = true
     end
 
-    opts.on("-t", "--skip-template", "Skip html template for component") do
-      options[:template] = false
+    opts.on("-a", "--add-all", "Add all component scaffolding (js,css,template)") do
+      options[:template] = true
+      options[:js]       = true
+      options[:css]      = true
     end
 
-    opts.on("-s", "--skip-sass", "Skip Sass for component") do
-      options[:sass] = false
+    opts.on("-t", "--add-template", "Add html template for component") do
+      options[:template] = true
     end
 
-    opts.on("-j", "--skip-js", "Skip javascript for component") do
-      options[:js] = false
+    opts.on("-c", "--add-css", "Add stylesheets for component") do
+      options[:sass] = true
     end
 
-    opts.on("-c", "--class ClassName", String, "Component extends a classname (default: Components::Component)") do |val|
+    opts.on("-j", "--add-js", "Add javascript for component") do
+      options[:js] = true
+    end
+
+    opts.on("-e", "--extend ClassName", String, "Component extends a classname (default: SparkComponents::Component)") do |val|
       options[:class] = val
     end
 

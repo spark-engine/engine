@@ -213,7 +213,7 @@ module SparkEngine
       end
 
       # Write component class
-      component_content = %Q{class #{modulize(options[:component])}Component < #{options[:class] || 'Components::Component' }\nend} 
+      component_content = %Q{class #{modulize(options[:component])}Component < #{options[:class] || 'SparkComponents::Component' }\nend} 
       write_file(paths[:component], component_content, options)
 
       write_file(paths[:template], '', options) if options[:template]
