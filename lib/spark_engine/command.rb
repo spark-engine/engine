@@ -11,6 +11,10 @@ module SparkEngine
         return
       end
 
+      if options[:clean] || SparkEngine.production?
+        from_root { clean }
+      end
+
       case options[:command]
       when 'new', 'n'
         require "spark_engine/scaffold"
@@ -66,7 +70,7 @@ module SparkEngine
       FileUtils.rm_rf('public')
       dispatch(:build)
       system "bundle exec rake build"
-      system "git add Gemfile* lib"
+      system "git add Gemfile.lock lib"
     end
 
     def gem_install
@@ -129,7 +133,6 @@ module SparkEngine
     def build(options={})
       puts SparkEngine.production? ? 'Building for production…' : 'Building…'
       require_rails
-      clean if SparkEngine.production?
       SparkEngine.plugin.build(options)
     end
 

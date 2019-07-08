@@ -59,7 +59,7 @@ OptionParser.new do |opts|
     end
 
     opts.on("-c", "--add-css", "Add stylesheets for component") do
-      options[:sass] = true
+      options[:css] = true
     end
 
     opts.on("-j", "--add-js", "Add javascript for component") do

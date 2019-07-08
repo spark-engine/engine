@@ -61,7 +61,7 @@ module SparkEngine
         puts ""
       end
 
-      def npm_path( cmd )
+      def npm_path(cmd)
         File.join SparkEngine.gem_path, "node_modules/.bin", cmd
       end
 
@@ -78,7 +78,6 @@ module SparkEngine
         puts "Running: #{cmd}" if plugin.debug?
 
         cmd
-
       end
     end
   end

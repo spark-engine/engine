@@ -189,12 +189,6 @@ module SparkEngine
     end
 
     def new_component(options={})
-      options = {
-        sass: true,
-        template: true,
-        js: true
-      }.merge(options)
-
       path = File.join(SparkEngine.plugin.paths[:components], options[:component])
       name = options[:component].split('/').last
 
@@ -202,7 +196,7 @@ module SparkEngine
         base: path,
         component: path+'_component.rb',
         template: File.join(path, "_#{name}.html.erb"),
-        sass: File.join(SparkEngine.plugin.paths[:stylesheets], "components", "#{options[:component].sub(name, '_'+name)}.scss"),
+        css: File.join(SparkEngine.plugin.paths[:stylesheets], "components", "#{options[:component].sub(name, '_'+name)}.scss"),
         js: File.join(SparkEngine.plugin.paths[:javascripts], "components", "#{options[:component].sub(name, '_'+name)}.js")
       }
 
@@ -217,7 +211,7 @@ module SparkEngine
       write_file(paths[:component], component_content, options)
 
       write_file(paths[:template], '', options) if options[:template]
-      write_file(paths[:sass], '', options)     if options[:sass]
+      write_file(paths[:css], '', options)      if options[:css]
       write_file(paths[:js], '', options)       if options[:js] 
     end
 

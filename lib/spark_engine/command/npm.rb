@@ -9,7 +9,7 @@ module SparkEngine
     devDependencies:
       browserify: ^16.2.1
       browserify-incremental: ^3.1.1
-      uglify-js: ^3.4.9
+      uglify-es: ^3.3.9
       svgo: ^1.0.5
     }
 
