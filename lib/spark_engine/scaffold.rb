@@ -206,8 +206,12 @@ module SparkEngine
         end
       end
 
+      # Convert "foo/bar" || "Foo::Bar" -> "Foo::BarComponent"
+      options[:class] = options[:class] ? "#{modulize(options[:class])}" : "SparkComponents::Component"
+      options[:class] << "Component" unless options[:class].end_with? "Component"
+
       # Write component class
-      component_content = %Q{class #{modulize(options[:component])}Component < #{options[:class] || 'SparkComponents::Component' }\nend} 
+      component_content = %Q{class #{modulize(options[:component])}Component < #{options[:class] }\nend} 
       write_file(paths[:component], component_content, options)
 
       write_file(paths[:template], '', options) if options[:template]
