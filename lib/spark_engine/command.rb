@@ -111,6 +111,7 @@ module SparkEngine
     end
 
     def require_rails
+      return if defined?(Rails)
       require File.join(Dir.pwd, SparkEngine.rails_path('config/application'))
     end
 
