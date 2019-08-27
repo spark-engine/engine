@@ -34,7 +34,7 @@ module SparkEngine
             response = Open3.capture3(build_command(file))
 
             # If the file exists and is not empty (a failed build is empty)
-            if File.exist?(dest) && !File.read(dest).strip.empty?
+            if response.last.success?
               compress(dest) if SparkEngine.production?
               build_success file
             else
