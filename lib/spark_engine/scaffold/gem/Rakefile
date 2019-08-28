@@ -1,0 +1,7 @@
+require "bundler/gem_tasks"
+require_relative "site/config/application"
+Rails.application.load_tasks
+
+Rake::Task["assets:precompile"].enhance do
+  SparkEngine.plugin.build
+end
