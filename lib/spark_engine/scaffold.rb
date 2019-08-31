@@ -85,7 +85,7 @@ module SparkEngine
 
         remove.each { |f| FileUtils.rm_rf File.join(@gem, 'site', f), secure: true }
       end
-      
+
 
       engine_copy
     end
@@ -125,8 +125,8 @@ module SparkEngine
       ext = File.extname(template)
 
       # Replace keywords with correct names (excluding file extensions)
-      target_path = template.sub(/#{ext}$/, '').gsub(/(gem|engine|namespace)/, { 
-        'gem' => @gem, 
+      target_path = template.sub(/#{ext}$/, '').gsub(/(gem|engine|namespace)/, {
+        'gem' => @gem,
         'engine' => @engine,
         'namespace' => @namespace
       }) + ext
@@ -145,7 +145,7 @@ module SparkEngine
     def write_file(path, content='', options={})
       options[:mode] ||= 'w'
 
-      if File.exist?(path) 
+      if File.exist?(path)
         if options[:force]
           type = 'update'
         else
@@ -169,7 +169,7 @@ module SparkEngine
     def post_install
       require 'pathname'
 
-      target = Pathname.new File.join(@cwd, @gem) 
+      target = Pathname.new File.join(@cwd, @gem)
       dir = target.relative_path_from Pathname.new(Dir.pwd)
       victory = "#{@plugin_module} Design System created at #{dir}. Huzzah!"
       dashes = ''
@@ -197,11 +197,20 @@ module SparkEngine
         component: path+'_component.rb',
         template: File.join(path, "_#{name}.html.erb"),
         css: File.join(SparkEngine.plugin.paths[:stylesheets], "components", "#{options[:component].sub(name, '_'+name)}.scss"),
-        js: File.join(SparkEngine.plugin.paths[:javascripts], "components", "#{options[:component].sub(name, '_'+name)}.js")
+        js: File.join(SparkEngine.plugin.paths[:javascripts], "components", "#{options[:component].sub(name, '_'+name)}.js"),
+        docs: File.join(SparkEngine.plugin.root, "site/app/views/docs/components", "#{options[:component]}.html")
       }
 
+      if defined?(Slim)
+        paths[:docs] << ".slim"
+      elsif defined?(Haml)
+        paths[:docs] << ".haml"
+      else
+        paths[:docs] << ".erb"
+      end
+
       if options[:delete]
-        return paths.values.each do |p| 
+        return paths.values.each do |p|
           action_log('delete', FileUtils.rm_rf(p).first) if File.exist?(p)
         end
       end
@@ -211,12 +220,13 @@ module SparkEngine
       options[:class] << "Component" unless options[:class].end_with? "Component"
 
       # Write component class
-      component_content = %Q{class #{modulize(options[:component])}Component < #{options[:class] }\nend} 
+      component_content = %Q{class #{modulize(options[:component])}Component < #{options[:class] }\nend}
       write_file(paths[:component], component_content, options)
+      write_file(paths[:docs], '', options)
 
       write_file(paths[:template], '', options) if options[:template]
       write_file(paths[:css], '', options)      if options[:css]
-      write_file(paths[:js], '', options)       if options[:js] 
+      write_file(paths[:js], '', options)       if options[:js]
     end
 
 
@@ -233,9 +243,9 @@ module SparkEngine
     end
 
     def modulize(input)
-      classify = lambda { |name| 
+      classify = lambda { |name|
         name = (name =~ /_/) ? name.split('_').map(&classify).join : name
-        (name =~ /[A-Z]/) ? name : name.capitalize 
+        (name =~ /[A-Z]/) ? name : name.capitalize
       }
       input.split('/').map(&classify).join('::')
     end
