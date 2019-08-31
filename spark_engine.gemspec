@@ -9,7 +9,7 @@ Gem::Specification.new do |spec|
   spec.email         = ['brandon@imathis.com']
 
   spec.summary       = %q{A design system framework for Rails (and humans).}
-  spec.homepage      = 'https://github.com/imathis/spark'
+  spec.homepage      = 'https://github.com/spark-engine/engine'
   spec.license       = 'MIT'
 
   spec.files         = `git ls-files -z`.split("\x0").reject { |f| f.match(%r{^(test|spec|features)/}) }
