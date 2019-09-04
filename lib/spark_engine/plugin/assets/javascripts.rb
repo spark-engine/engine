@@ -68,7 +68,7 @@ module SparkEngine
       def build_command(file)
         dest = destination(file)
         basename = pathname(file)
-        options = "--standalone #{plugin.name} -d"
+        options = "--standalone #{File.basename(file, ".*")} -d"
 
         cmd = if SparkEngine.production?
                 npm_path %Q{browserify #{file} #{options} | #{npm_path('uglifyjs')} --output #{dest} --source-map "url='#{basename}.map',filename='#{basename}',content='inline',includeSources='true'"}
