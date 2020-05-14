@@ -7,6 +7,10 @@ module SparkEngine
 
     class << self
 
+      def parent_accessor
+        @parent_accessor ||= respond_to?(:module_parent) ? :module_parent : :parent
+      end
+
       def inherited(klass)
         # Define the helper method
         # e.g. for a class:
@@ -17,9 +21,9 @@ module SparkEngine
         # then we define a helper method 'hello_helper'
         #
         method_name = klass.name.split('::').last.underscore
-        klass.parent.class_eval %(
+        klass.send(parent_accessor).class_eval %(
           def #{method_name}(*args, &block)
-            
+
             # Get the current helper object which has all the normal helper methods
             if self.is_a?(SparkEngine::BlockHelper)
               top_level_helper = self.helper
@@ -28,7 +32,7 @@ module SparkEngine
               top_level_helper = self
               parent_block_helper = nil
             end
-            
+
             # We need to save the current helper and parent block helper in the class so that
             # it's visible to the renderer's 'initialize' method...
             #{klass.name}.current_helper = top_level_helper
@@ -37,7 +41,7 @@ module SparkEngine
 
             # ...then set them anyway on the renderer so that renderer methods can use it
             renderer.send(:helper=, top_level_helper)
-            renderer.send(:parent=, parent_block_helper)
+            renderer.send(:#{parent_accessor}=, parent_block_helper)
 
             body = block ? capture(renderer, &block) : nil
 
@@ -47,28 +51,31 @@ module SparkEngine
           end
         )
       end
-      
+
       attr_accessor :current_helper, :current_parent_block_helper
-    
+
     end
 
     def display(body)
       body
     end
-    
+
     def respond_to?(method, include_all = false)
       super or helper.respond_to?(method, include_all)
     end
 
     protected
 
-    attr_writer :helper, :parent
+    attr_writer :helper, :"#{parent_accessor}"
 
     # For nested block helpers
-    def parent
-      @parent ||= self.class.current_parent_block_helper
+    define_method :"#{parent_accessor}" do
+      unless instance_variable_get("@#{parent_accessor}")
+        instance_variable_set("@#{parent_accessor}", self.class.current_parent_block_helper)
+      end
+      instance_variable_get("@#{parent_accessor}")
     end
-    
+
     def helper
       @helper ||= self.class.current_helper
     end
